@@ -1,0 +1,8 @@
+service:
+  full_name: "AWS CloudTrail"
+  short_name: "CloudTrail"
+  link: "https://aws.amazon.com/cloudtrail/"
+  documentation: "https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/Welcome.html"
+api_versions:
+  - api_version: v1alpha1
+    status: available
