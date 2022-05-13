@@ -2,10 +2,35 @@ ignore:
   field_paths: null
   operations: null
   resource_names:
-  - Trail
   - EventDataStore
   shape_names: null
 model_name: cloudtrail
 operations: {}
 prefix_config: {}
-resources: {}
+resources:
+  Trail:
+    fields:
+      Name:
+        is_immutable: true
+    renames:
+      operations:
+        CreateTrail:
+          input_fields:
+            TagsList: Tags
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/trail/sdk_read_one_post_set_output.go.tpl
+      sdk_update_post_set_output:
+        template_path: hooks/trail/sdk_update_post_set_output.go.tpl
+    update_operation:
+      custom_method_name: customUpdateTrail
+    exceptions:
+      errors:
+        404:
+          code: TrailNotFoundException
+      terminal_codes:
+        - InvalidParameterCombination
+        - InvalidParameterValue
+        - InvalidQueryParameter
+        - MissingAction
+        - MissingParameter

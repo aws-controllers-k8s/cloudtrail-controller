@@ -16,7 +16,7 @@ import boto3
 import pytest
 
 from acktest import k8s
-
+from acktest.aws.identity import get_region
 
 def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true", default=False, help="run slow tests")
@@ -48,4 +48,4 @@ def k8s_client():
 
 @pytest.fixture(scope='module')
 def cloudtrail_client():
-    return boto3.client('cloudtrail')
+    return boto3.client('cloudtrail', region_name=get_region())

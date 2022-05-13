@@ -33,6 +33,26 @@ rules:
   - patch
   - watch
 - apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - trails
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - trails/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - services.k8s.aws
   resources:
   - adoptedresources
