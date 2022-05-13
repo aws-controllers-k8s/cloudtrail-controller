@@ -9,7 +9,6 @@ rules:
 - apiGroups:
   - cloudtrail.services.k8s.aws
   resources:
-  - trails
   verbs:
   - create
   - delete
@@ -21,7 +20,6 @@ rules:
 - apiGroups:
   - cloudtrail.services.k8s.aws
   resources:
-  - trails
   verbs:
   - get
   - patch

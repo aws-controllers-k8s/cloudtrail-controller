@@ -2,15 +2,8 @@ ignore:
   field_paths: null
   operations: null
   resource_names:
-  - HealthCheck
-  - HostedZone
-  - KeySigningKey
-  - QueryLoggingConfig
-  - ReusableDelegationSet
-  - TrafficPolicy
-  - TrafficPolicyInstance
-  - TrafficPolicyVersion
-  - VPCAssociationAuthorization
+  - Trail
+  - EventDataStore
   shape_names: null
 model_name: cloudtrail
 operations: {}
