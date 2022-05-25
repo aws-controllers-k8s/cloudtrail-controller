@@ -33,6 +33,8 @@ import (
 	svctypes "github.com/aws-controllers-k8s/cloudtrail-controller/apis/v1alpha1"
 	svcresource "github.com/aws-controllers-k8s/cloudtrail-controller/pkg/resource"
 
+	_ "github.com/aws-controllers-k8s/cloudtrail-controller/pkg/resource/trail"
+
 	"github.com/aws-controllers-k8s/cloudtrail-controller/pkg/version"
 )
 

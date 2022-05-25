@@ -12,16 +12,55 @@
 # permissions and limitations under the License.
 """Bootstraps the resources required to run the CloudTrail integration tests.
 """
+
 import logging
+import json
 
 from acktest.bootstrapping import Resources, BootstrapFailureException
 from e2e import bootstrap_directory
+from acktest.bootstrapping.s3 import Bucket
 from e2e.bootstrap_resources import BootstrapResources
+from e2e.common import TRAIL_NAME
+
+BUCKET_POLICY_FOR_CLOUDTRAIL = """{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck20150319",
+            "Effect": "Allow",
+            "Principal": {"Service": "cloudtrail.amazonaws.com"},
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::$NAME",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceArn": "arn:aws:cloudtrail:$REGION:$ACCOUNT_ID:trail/$TRAIL_NAME"
+                }
+            }
+        },
+        {
+            "Sid": "AWSCloudTrailWrite20150319",
+            "Effect": "Allow",
+            "Principal": {"Service": "cloudtrail.amazonaws.com"},
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::$NAME/AWSLogs/$ACCOUNT_ID/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control",
+                    "aws:SourceArn": "arn:aws:cloudtrail:$REGION:$ACCOUNT_ID:trail/$TRAIL_NAME"
+                }
+            }
+        }
+    ]
+}"""
 
 def service_bootstrap() -> Resources:
     logging.getLogger().setLevel(logging.INFO)
-    
     resources = BootstrapResources(
+        TrailLogBucket=Bucket(
+            "ack-test-bucket",
+            policy=BUCKET_POLICY_FOR_CLOUDTRAIL,
+            policy_vars={"$TRAIL_NAME": TRAIL_NAME},
+        )
     )
 
     try:

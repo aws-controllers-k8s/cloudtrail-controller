@@ -1,0 +1,10 @@
+apiVersion: cloudtrail.services.k8s.aws/v1alpha1
+kind: Trail
+metadata:
+  name: $TRAIL_NAME
+spec:
+  name: $TRAIL_NAME
+  s3BucketName: $BUCKET_NAME
+  tags:
+    - key: env
+      value: testing
