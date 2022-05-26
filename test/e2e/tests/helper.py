@@ -16,7 +16,6 @@
 
 from typing import Union, Dict
 import logging
-from e2e import tag
 
 class CloudTrailValidator:
     def __init__(self, cloudtrail_client):
@@ -33,23 +32,25 @@ class CloudTrailValidator:
 
         return resp["Trail"]
 
-    def list_trail_tags(self, trail_arn: str) -> list:
+    def get_event_data_store(self, event_data_store_arn: str) -> dict:
+        try:
+            resp = self.cloudtrail_client.get_event_data_store(
+                EventDataStore=event_data_store_arn,
+            )
+        except Exception as e:
+            logging.debug(e)
+            return None
+
+        return resp
+
+
+    def list_resource_tags(self, resource_arn: str) -> list:
         try:
             resp = self.cloudtrail_client.list_tags(
-                ResourceIdList=[trail_arn],
+                ResourceIdList=[resource_arn],
             )
         except Exception as e:
             logging.debug(e)
             return None
 
         return resp["ResourceTagList"][0]["TagsList"]
-
-    def assert_trail(self, trail_name: str, exists=True):
-        assert (self.get_trail(trail_name) is not None) == exists
-
-    def assert_trail_tags(self, trail_arn: str, tags:list):
-        trail_tags = tag.cleaned(self.list_trail_tags(trail_arn))
-        assert len(trail_tags) == len(tags)
-        for i in range(0, len(tags)):
-            assert tags[i]["Key"] == trail_tags[i]["Key"]
-            assert tags[i]["Value"] == trail_tags[i]["Value"]

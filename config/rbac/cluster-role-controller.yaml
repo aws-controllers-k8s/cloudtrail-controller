@@ -34,6 +34,26 @@ rules:
 - apiGroups:
   - cloudtrail.services.k8s.aws
   resources:
+  - eventdatastores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - eventdatastores/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
   - trails
   verbs:
   - create

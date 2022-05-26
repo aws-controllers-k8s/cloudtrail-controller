@@ -28,6 +28,41 @@ var (
 	_ = ackv1alpha1.AWSAccountID("")
 )
 
+// Advanced event selectors let you create fine-grained selectors for the following
+// CloudTrail event record ﬁelds. They help you control costs by logging only
+// those events that are important to you. For more information about advanced
+// event selectors, see Logging data events for trails (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html)
+// in the CloudTrail User Guide.
+//
+//    * readOnly
+//
+//    * eventSource
+//
+//    * eventName
+//
+//    * eventCategory
+//
+//    * resources.type
+//
+//    * resources.ARN
+//
+// You cannot apply both event selectors and advanced event selectors to a trail.
+type AdvancedEventSelector struct {
+	FieldSelectors []*AdvancedFieldSelector `json:"fieldSelectors,omitempty"`
+	Name           *string                  `json:"name,omitempty"`
+}
+
+// A single selector statement in an advanced event selector.
+type AdvancedFieldSelector struct {
+	EndsWith      []*string `json:"endsWith,omitempty"`
+	Equals        []*string `json:"equals,omitempty"`
+	Field         *string   `json:"field,omitempty"`
+	NotEndsWith   []*string `json:"notEndsWith,omitempty"`
+	NotEquals     []*string `json:"notEquals,omitempty"`
+	NotStartsWith []*string `json:"notStartsWith,omitempty"`
+	StartsWith    []*string `json:"startsWith,omitempty"`
+}
+
 // The Amazon S3 buckets, Lambda functions, or Amazon DynamoDB tables that you
 // specify in your event selectors for your trail to log data events. Data events
 // provide information about the resource operations performed on or within
@@ -83,13 +118,14 @@ type DataResource struct {
 // Contains information about an event that was returned by a lookup request.
 // The result includes a representation of a CloudTrail event.
 type Event struct {
-	AccessKeyID     *string `json:"accessKeyID,omitempty"`
-	CloudTrailEvent *string `json:"cloudTrailEvent,omitempty"`
-	EventID         *string `json:"eventID,omitempty"`
-	EventName       *string `json:"eventName,omitempty"`
-	EventSource     *string `json:"eventSource,omitempty"`
-	ReadOnly        *string `json:"readOnly,omitempty"`
-	Username        *string `json:"username,omitempty"`
+	AccessKeyID     *string      `json:"accessKeyID,omitempty"`
+	CloudTrailEvent *string      `json:"cloudTrailEvent,omitempty"`
+	EventID         *string      `json:"eventID,omitempty"`
+	EventName       *string      `json:"eventName,omitempty"`
+	EventSource     *string      `json:"eventSource,omitempty"`
+	EventTime       *metav1.Time `json:"eventTime,omitempty"`
+	ReadOnly        *string      `json:"readOnly,omitempty"`
+	Username        *string      `json:"username,omitempty"`
 }
 
 // A storage lake of event data against which you can run complex SQL-based
@@ -97,9 +133,17 @@ type Event struct {
 // account from the last 90 to 2555 days (about three months to up to seven
 // years). To select events for an event data store, use advanced event selectors
 // (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced).
-type EventDataStore struct {
-	MultiRegionEnabled  *bool `json:"multiRegionEnabled,omitempty"`
-	OrganizationEnabled *bool `json:"organizationEnabled,omitempty"`
+type EventDataStore_SDK struct {
+	AdvancedEventSelectors       []*AdvancedEventSelector `json:"advancedEventSelectors,omitempty"`
+	CreatedTimestamp             *metav1.Time             `json:"createdTimestamp,omitempty"`
+	EventDataStoreARN            *string                  `json:"eventDataStoreARN,omitempty"`
+	MultiRegionEnabled           *bool                    `json:"multiRegionEnabled,omitempty"`
+	Name                         *string                  `json:"name,omitempty"`
+	OrganizationEnabled          *bool                    `json:"organizationEnabled,omitempty"`
+	RetentionPeriod              *int64                   `json:"retentionPeriod,omitempty"`
+	Status                       *string                  `json:"status,omitempty"`
+	TerminationProtectionEnabled *bool                    `json:"terminationProtectionEnabled,omitempty"`
+	UpdatedTimestamp             *metav1.Time             `json:"updatedTimestamp,omitempty"`
 }
 
 // Use event selectors to further specify the management and data event settings
@@ -124,7 +168,22 @@ type LookupAttribute struct {
 
 // Contains information about a returned public key.
 type PublicKey struct {
-	Fingerprint *string `json:"fingerprint,omitempty"`
+	Fingerprint       *string      `json:"fingerprint,omitempty"`
+	ValidityEndTime   *metav1.Time `json:"validityEndTime,omitempty"`
+	ValidityStartTime *metav1.Time `json:"validityStartTime,omitempty"`
+}
+
+// A SQL string of criteria about events that you want to collect in an event
+// data store.
+type Query struct {
+	CreationTime *metav1.Time `json:"creationTime,omitempty"`
+}
+
+// Gets metadata about a query, including the number of events that were matched,
+// the total number of events scanned, the query run time in milliseconds, and
+// the query's creation time.
+type QueryStatisticsForDescribeQuery struct {
+	CreationTime *metav1.Time `json:"creationTime,omitempty"`
 }
 
 // Specifies the type and name of a resource referenced by an event.
