@@ -1,0 +1,10 @@
+apiVersion: cloudtrail.services.k8s.aws/v1alpha1
+kind: EventDataStore
+metadata:
+  name: $EVENT_DATA_STORE_NAME
+spec:
+  name: $EVENT_DATA_STORE_NAME
+  terminationProtectionEnabled: false
+  tags:
+    - key: env
+      value: prod

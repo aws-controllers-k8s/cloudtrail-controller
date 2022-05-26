@@ -9,6 +9,7 @@ rules:
 - apiGroups:
   - cloudtrail.services.k8s.aws
   resources:
+  - eventdatastores
   - trails
   verbs:
   - create
@@ -21,6 +22,7 @@ rules:
 - apiGroups:
   - cloudtrail.services.k8s.aws
   resources:
+  - eventdatastores
   - trails
   verbs:
   - get

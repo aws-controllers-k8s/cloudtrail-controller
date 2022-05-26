@@ -11,9 +11,10 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
-"""Integration tests for the CloudTrail Trail resource
+"""Integration tests for the CloudTrail EventDataStore resource
 """
 
+import resource
 import boto3
 import logging
 import time
@@ -27,22 +28,23 @@ from e2e import service_marker, CRD_GROUP, CRD_VERSION, load_cloudtrail_resource
 from e2e.replacement_values import REPLACEMENT_VALUES
 from e2e.bootstrap_resources import get_bootstrap_resources
 from e2e.tests.helper import CloudTrailValidator
-from e2e.common import TRAIL_NAME
 
-RESOURCE_PLURAL = "trails"
+RESOURCE_PLURAL = "eventdatastores"
 
 CREATE_WAIT_AFTER_SECONDS = 10
 MODIFY_WAIT_AFTER_SECONDS = 10
 DELETE_WAIT_AFTER_SECONDS = 10
 
 @pytest.fixture
-def simple_trail():
+def simple_event_data_store():
+    resource_name = random_suffix_name("cloudtrail-eds", 24)
+
+
     replacements = REPLACEMENT_VALUES.copy()
-    replacements["TRAIL_NAME"] = TRAIL_NAME
-    replacements["BUCKET_NAME"] = get_bootstrap_resources().TrailLogBucket.name
+    replacements["EVENT_DATA_STORE_NAME"] = resource_name
 
     resource_data = load_cloudtrail_resource(
-        "trail",
+        "event_data_store",
         additional_replacements=replacements,
     )
     logging.debug(resource_data)
@@ -50,13 +52,13 @@ def simple_trail():
     # Create the k8s resource
     ref = k8s.CustomResourceReference(
         CRD_GROUP, CRD_VERSION, RESOURCE_PLURAL,
-        TRAIL_NAME, namespace="default",
+        resource_name, namespace="default",
     )
     k8s.create_custom_resource(ref, resource_data)
 
     time.sleep(CREATE_WAIT_AFTER_SECONDS)
 
-    # Get latest trail CR
+    # Get latest event data store CR
     cr = k8s.wait_resource_consumed_by_controller(ref)
 
     assert cr is not None
@@ -73,26 +75,28 @@ def simple_trail():
 
 @service_marker
 @pytest.mark.canary
-class TestTrail:
-    def test_crud(self, cloudtrail_client, simple_trail):
-        (ref, cr) = simple_trail
+class TestEventDataStore:
+    def test_crud(self, cloudtrail_client, simple_event_data_store):
+        (ref, cr) = simple_event_data_store
 
-        trail_name = cr["spec"]["name"]
-        trail_arn = cr["status"]["ackResourceMetadata"]["arn"]
+        eds_name = cr["spec"]["name"]
+        eds_arn = cr["status"]["ackResourceMetadata"]["arn"]
 
         cloudtrail_validator = CloudTrailValidator(cloudtrail_client)
-        # verify that trail exists
-        cloudtrail_validator.assert_trail(trail_name)
-        # verify that trail tags are created
-        cloudtrail_validator.assert_resource_tags(trail_arn, [{"Key":"env","Value":"testing"}])
+        # verify that data event store exists
+        cloudtrail_validator.assert_event_data_store(eds_arn)
+        # verify that the event data store tags are created
+        cloudtrail_validator.assert_resource_tags(eds_arn, [{"Key":"env","Value":"testing"}])
 
-        # Update the trail log file validation
-        cr["spec"]["includeGlobalServiceEvents"] = True
+        resource_new_name = f"{eds_name}-renamed"
+
+        # Update the EDS log file validation
+        cr["spec"]["name"] = resource_new_name
         k8s.patch_custom_resource(ref, cr)
         time.sleep(MODIFY_WAIT_AFTER_SECONDS)
 
-        trail = cloudtrail_validator.get_trail(trail_name)
-        assert trail["IncludeGlobalServiceEvents"]
+        eds = cloudtrail_validator.get_event_data_store(eds_arn)
+        assert eds["Name"] == resource_new_name
 
         # Delete k8s resource
         _, deleted = k8s.delete_custom_resource(ref)
@@ -100,5 +104,5 @@ class TestTrail:
 
         time.sleep(DELETE_WAIT_AFTER_SECONDS)
 
-        # Check trail doesn't exist
-        cloudtrail_validator.assert_trail(trail_name, exists=False)
+        eds = cloudtrail_validator.get_event_data_store(eds_arn, exists=False)
+        assert eds["status"]["status"] == "PENDING DELETION"
