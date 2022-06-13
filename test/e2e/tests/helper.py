@@ -16,6 +16,7 @@
 
 from typing import Union, Dict
 import logging
+from e2e import tag
 
 class CloudTrailValidator:
     def __init__(self, cloudtrail_client):
@@ -47,7 +48,7 @@ class CloudTrailValidator:
         assert (self.get_trail(trail_name) is not None) == exists
 
     def assert_trail_tags(self, trail_arn: str, tags:list):
-        trail_tags = self.list_trail_tags(trail_arn)
+        trail_tags = tag.cleaned(self.list_trail_tags(trail_arn))
         assert len(trail_tags) == len(tags)
         for i in range(0, len(tags)):
             assert tags[i]["Key"] == trail_tags[i]["Key"]
