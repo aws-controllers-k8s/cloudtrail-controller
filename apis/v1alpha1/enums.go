@@ -21,10 +21,19 @@ const (
 	EventCategory_insight EventCategory = "insight"
 )
 
+type EventDataStoreStatus string
+
+const (
+	EventDataStoreStatus_CREATED          EventDataStoreStatus = "CREATED"
+	EventDataStoreStatus_ENABLED          EventDataStoreStatus = "ENABLED"
+	EventDataStoreStatus_PENDING_DELETION EventDataStoreStatus = "PENDING_DELETION"
+)
+
 type InsightType string
 
 const (
-	InsightType_ApiCallRateInsight InsightType = "ApiCallRateInsight"
+	InsightType_ApiCallRateInsight  InsightType = "ApiCallRateInsight"
+	InsightType_ApiErrorRateInsight InsightType = "ApiErrorRateInsight"
 )
 
 type LookupAttributeKey string
@@ -38,6 +47,17 @@ const (
 	LookupAttributeKey_ResourceName LookupAttributeKey = "ResourceName"
 	LookupAttributeKey_EventSource  LookupAttributeKey = "EventSource"
 	LookupAttributeKey_AccessKeyId  LookupAttributeKey = "AccessKeyId"
+)
+
+type QueryStatus string
+
+const (
+	QueryStatus_QUEUED    QueryStatus = "QUEUED"
+	QueryStatus_RUNNING   QueryStatus = "RUNNING"
+	QueryStatus_FINISHED  QueryStatus = "FINISHED"
+	QueryStatus_FAILED    QueryStatus = "FAILED"
+	QueryStatus_CANCELLED QueryStatus = "CANCELLED"
+	QueryStatus_TIMED_OUT QueryStatus = "TIMED_OUT"
 )
 
 type ReadWriteType string

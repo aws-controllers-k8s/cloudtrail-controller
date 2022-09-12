@@ -92,6 +92,16 @@ type Event struct {
 	Username        *string `json:"username,omitempty"`
 }
 
+// A storage lake of event data against which you can run complex SQL-based
+// queries. An event data store can include events that you have logged on your
+// account from the last 90 to 2555 days (about three months to up to seven
+// years). To select events for an event data store, use advanced event selectors
+// (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced).
+type EventDataStore struct {
+	MultiRegionEnabled  *bool `json:"multiRegionEnabled,omitempty"`
+	OrganizationEnabled *bool `json:"organizationEnabled,omitempty"`
+}
+
 // Use event selectors to further specify the management and data event settings
 // for your trail. By default, trails created without specific event selectors
 // will be configured to log all read and write management events, and no data
