@@ -4,11 +4,19 @@ kind: ClusterRole
 metadata:
   creationTimestamp: null
   name: ack-cloudtrail-controller
+  labels:
+  {{- range $key, $value := .Values.role.labels }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
 {{ else }}
 kind: Role
 metadata:
   creationTimestamp: null
   name: ack-cloudtrail-controller
+  labels:
+  {{- range $key, $value := .Values.role.labels }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
   namespace: {{ .Release.Namespace }}
 {{ end }}
 rules:
@@ -38,6 +46,26 @@ rules:
   - list
   - patch
   - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - eventdatastores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - eventdatastores/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - cloudtrail.services.k8s.aws
   resources:

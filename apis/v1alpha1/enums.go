@@ -21,12 +21,12 @@ const (
 	EventCategory_insight EventCategory = "insight"
 )
 
-type EventDataStoreStatus string
+type EventDataStoreStatus_SDK string
 
 const (
-	EventDataStoreStatus_CREATED          EventDataStoreStatus = "CREATED"
-	EventDataStoreStatus_ENABLED          EventDataStoreStatus = "ENABLED"
-	EventDataStoreStatus_PENDING_DELETION EventDataStoreStatus = "PENDING_DELETION"
+	EventDataStoreStatus_SDK_CREATED          EventDataStoreStatus_SDK = "CREATED"
+	EventDataStoreStatus_SDK_ENABLED          EventDataStoreStatus_SDK = "ENABLED"
+	EventDataStoreStatus_SDK_PENDING_DELETION EventDataStoreStatus_SDK = "PENDING_DELETION"
 )
 
 type InsightType string

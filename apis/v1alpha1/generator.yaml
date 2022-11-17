@@ -1,12 +1,3 @@
-ignore:
-  field_paths: null
-  operations: null
-  resource_names:
-  - EventDataStore
-  shape_names: null
-model_name: cloudtrail
-operations: {}
-prefix_config: {}
 resources:
   Trail:
     fields:
@@ -20,8 +11,6 @@ resources:
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/trail/sdk_read_one_post_set_output.go.tpl
-      sdk_update_post_set_output:
-        template_path: hooks/trail/sdk_update_post_set_output.go.tpl
     update_operation:
       custom_method_name: customUpdateTrail
     exceptions:
@@ -34,3 +23,35 @@ resources:
         - InvalidQueryParameter
         - MissingAction
         - MissingParameter
+  EventDataStore:
+    fields:
+      AdvancedEventSelectors:
+        late_initialize: {}
+      MultiRegionEnabled:
+        late_initaliaze: {}
+      OrganizationEnabled:
+        late_initaliaze: {}
+      RetentionPeriod:
+        late_initaliaze: {}
+    is_arn_primary_key: true
+    renames:
+      operations:
+        GetEventDataStore:
+          input_fields:
+            EventDataStore: Name
+        CreateEventDataStore:
+          input_fields:
+            TagsList: Tags
+    hooks:
+      delta_pre_compare:
+        code: customPreCompare(delta, a, b)
+      sdk_update_post_build_request:
+        template_path: hooks/event_data_store/sdk_update_post_build_request.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/event_data_store/sdk_update_pre_build_request.go.tpl
+      sdk_read_one_post_set_output:
+        template_path: hooks/event_data_store/sdk_read_one_post_set_output.go.tpl
+      sdk_read_one_post_build_request:
+        template_path: hooks/event_data_store/sdk_read_one_post_build_request.go.tpl
+      sdk_delete_post_build_request:
+        template_path: hooks/event_data_store/sdk_delete_post_build_request.go.tpl

@@ -3,4 +3,5 @@ kind: Kustomization
 bases:
   - common
 resources:
+  - bases/cloudtrail.services.k8s.aws_eventdatastores.yaml
   - bases/cloudtrail.services.k8s.aws_trails.yaml
