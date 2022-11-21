@@ -73,9 +73,6 @@ func newResourceDelta(
 			delta.Add("Spec.RetentionPeriod", a.ko.Spec.RetentionPeriod, b.ko.Spec.RetentionPeriod)
 		}
 	}
-	if !reflect.DeepEqual(a.ko.Spec.Tags, b.ko.Spec.Tags) {
-		delta.Add("Spec.Tags", a.ko.Spec.Tags, b.ko.Spec.Tags)
-	}
 	if ackcompare.HasNilDifference(a.ko.Spec.TerminationProtectionEnabled, b.ko.Spec.TerminationProtectionEnabled) {
 		delta.Add("Spec.TerminationProtectionEnabled", a.ko.Spec.TerminationProtectionEnabled, b.ko.Spec.TerminationProtectionEnabled)
 	} else if a.ko.Spec.TerminationProtectionEnabled != nil && b.ko.Spec.TerminationProtectionEnabled != nil {
