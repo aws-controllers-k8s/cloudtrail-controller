@@ -40,6 +40,7 @@ func newResourceDelta(
 		delta.Add("", a, b)
 		return delta
 	}
+	customPreCompare(delta, a, b)
 
 	if ackcompare.HasNilDifference(a.ko.Spec.CloudWatchLogsLogGroupARN, b.ko.Spec.CloudWatchLogsLogGroupARN) {
 		delta.Add("Spec.CloudWatchLogsLogGroupARN", a.ko.Spec.CloudWatchLogsLogGroupARN, b.ko.Spec.CloudWatchLogsLogGroupARN)
@@ -117,9 +118,6 @@ func newResourceDelta(
 		if *a.ko.Spec.SNSTopicName != *b.ko.Spec.SNSTopicName {
 			delta.Add("Spec.SNSTopicName", a.ko.Spec.SNSTopicName, b.ko.Spec.SNSTopicName)
 		}
-	}
-	if !reflect.DeepEqual(a.ko.Spec.Tags, b.ko.Spec.Tags) {
-		delta.Add("Spec.Tags", a.ko.Spec.Tags, b.ko.Spec.Tags)
 	}
 
 	return delta
