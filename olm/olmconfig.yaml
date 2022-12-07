@@ -1,0 +1,38 @@
+---
+annotations:
+  capabilityLevel: Basic Install
+  shortDescription: AWS CloudTrail controller is a service controller for managing CloudTrail resources
+    in Kubernetes
+displayName: AWS Controllers for Kubernetes - Amazon CloudTrail
+description: |-
+  Manage Elastic Compute Cloud (CloudTrail) resources in AWS from within your Kubernetes cluster.
+
+
+  **About Amazon CloudTrail**
+
+
+  AWS CloudTrail is an AWS service that helps you enable operational and risk auditing, governance, and compliance of your AWS account. Actions taken by a user, role, or an AWS service are recorded as events in CloudTrail. Events include actions taken in the AWS Management Console, AWS Command Line Interface, and AWS SDKs and APIs.
+
+
+  **About the AWS Controllers for Kubernetes**
+
+
+  This controller is a component of the [AWS Controller for Kubernetes](https://github.com/aws/aws-controllers-k8s)
+  project.
+
+
+  **Pre-Installation Steps**
+
+
+  Please follow the following link: [Red Hat OpenShift](https://aws-controllers-k8s.github.io/community/docs/user-docs/openshift/)
+samples:
+- kind: Trail
+  spec: '{}'
+- kind: EventDataStore
+  spec: '{}'
+maintainers:
+- name: "cloudtrail maintainer team"
+  email: "ack-maintainers@amazon.com"
+links:
+- name: Amazon CloudTrail Developer Resources
+  url: https://aws.amazon.com/cloudtrail/resources/
