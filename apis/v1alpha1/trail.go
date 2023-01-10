@@ -24,6 +24,7 @@ import (
 //
 // The settings for a trail.
 type TrailSpec struct {
+
 	// Specifies a log group name using an Amazon Resource Name (ARN), a unique
 	// identifier that represents the log group to which CloudTrail logs will be
 	// delivered. Not required unless you specify CloudWatchLogsRoleArn.
@@ -102,8 +103,7 @@ type TrailSpec struct {
 	// Specifies the name of the Amazon SNS topic defined for notification of log
 	// file delivery. The maximum length is 256 characters.
 	SNSTopicName *string `json:"snsTopicName,omitempty"`
-
-	Tags []*Tag `json:"tags,omitempty"`
+	Tags         []*Tag  `json:"tags,omitempty"`
 }
 
 // TrailStatus defines the observed state of Trail

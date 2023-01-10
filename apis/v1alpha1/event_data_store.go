@@ -28,6 +28,7 @@ import (
 // years). To select events for an event data store, use advanced event selectors
 // (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced).
 type EventDataStoreSpec struct {
+
 	// The advanced event selectors to use to select the events for the data store.
 	// For more information about how to use advanced event selectors, see Log events
 	// by using advanced event selectors (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced)
@@ -45,8 +46,7 @@ type EventDataStoreSpec struct {
 	// The retention period of the event data store, in days. You can set a retention
 	// period of up to 2555 days, the equivalent of seven years.
 	RetentionPeriod *int64 `json:"retentionPeriod,omitempty"`
-
-	Tags []*Tag `json:"tags,omitempty"`
+	Tags            []*Tag `json:"tags,omitempty"`
 	// Specifies whether termination protection is enabled for the event data store.
 	// If termination protection is enabled, you cannot delete the event data store
 	// until termination protection is disabled.
