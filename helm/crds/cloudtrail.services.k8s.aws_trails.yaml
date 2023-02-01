@@ -82,19 +82,19 @@ spec:
                   ARN to a key, or a globally unique identifier. \n CloudTrail also
                   supports KMS multi-Region keys. For more information about multi-Region
                   keys, see Using multi-Region keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
-                  in the Key Management Service Developer Guide. \n Examples: \n *
-                  alias/MyAliasName \n * arn:aws:kms:us-east-2:123456789012:alias/MyAliasName
-                  \n * arn:aws:kms:us-east-2:123456789012:key/12345678-1234-1234-1234-123456789012
-                  \n * 12345678-1234-1234-1234-123456789012"
+                  in the Key Management Service Developer Guide. \n Examples: \n -
+                  alias/MyAliasName \n - arn:aws:kms:us-east-2:123456789012:alias/MyAliasName
+                  \n - arn:aws:kms:us-east-2:123456789012:key/12345678-1234-1234-1234-123456789012
+                  \n - 12345678-1234-1234-1234-123456789012"
                 type: string
               name:
                 description: "Specifies the name of the trail. The name must meet
-                  the following requirements: \n * Contain only ASCII letters (a-z,
+                  the following requirements: \n - Contain only ASCII letters (a-z,
                   A-Z), numbers (0-9), periods (.), underscores (_), or dashes (-)
-                  \n * Start with a letter or number, and end with a letter or number
-                  \n * Be between 3 and 128 characters \n * Have no adjacent periods,
+                  \n - Start with a letter or number, and end with a letter or number
+                  \n - Be between 3 and 128 characters \n - Have no adjacent periods,
                   underscores or dashes. Names like my-_namespace and my--namespace
-                  are not valid. \n * Not be in IP address format (for example, 192.168.5.4)"
+                  are not valid. \n - Not be in IP address format (for example, 192.168.5.4)"
                 type: string
               s3BucketName:
                 description: Specifies the name of the Amazon S3 bucket designated

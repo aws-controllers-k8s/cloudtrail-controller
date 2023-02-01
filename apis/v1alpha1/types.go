@@ -34,17 +34,17 @@ var (
 // event selectors, see Logging data events for trails (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html)
 // in the CloudTrail User Guide.
 //
-//    * readOnly
+//   - readOnly
 //
-//    * eventSource
+//   - eventSource
 //
-//    * eventName
+//   - eventName
 //
-//    * eventCategory
+//   - eventCategory
 //
-//    * resources.type
+//   - resources.type
 //
-//    * resources.ARN
+//   - resources.ARN
 //
 // You cannot apply both event selectors and advanced event selectors to a trail.
 type AdvancedEventSelector struct {
