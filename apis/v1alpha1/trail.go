@@ -24,6 +24,7 @@ import (
 //
 // The settings for a trail.
 type TrailSpec struct {
+
 	// Specifies a log group name using an Amazon Resource Name (ARN), a unique
 	// identifier that represents the log group to which CloudTrail logs will be
 	// delivered. Not required unless you specify CloudWatchLogsRoleArn.
@@ -67,27 +68,28 @@ type TrailSpec struct {
 	//
 	// Examples:
 	//
-	//    * alias/MyAliasName
+	//   - alias/MyAliasName
 	//
-	//    * arn:aws:kms:us-east-2:123456789012:alias/MyAliasName
+	//   - arn:aws:kms:us-east-2:123456789012:alias/MyAliasName
 	//
-	//    * arn:aws:kms:us-east-2:123456789012:key/12345678-1234-1234-1234-123456789012
+	//   - arn:aws:kms:us-east-2:123456789012:key/12345678-1234-1234-1234-123456789012
 	//
-	//    * 12345678-1234-1234-1234-123456789012
+	//   - 12345678-1234-1234-1234-123456789012
 	KMSKeyID *string `json:"kmsKeyID,omitempty"`
 	// Specifies the name of the trail. The name must meet the following requirements:
 	//
-	//    * Contain only ASCII letters (a-z, A-Z), numbers (0-9), periods (.), underscores
-	//    (_), or dashes (-)
+	//   - Contain only ASCII letters (a-z, A-Z), numbers (0-9), periods (.), underscores
+	//     (_), or dashes (-)
 	//
-	//    * Start with a letter or number, and end with a letter or number
+	//   - Start with a letter or number, and end with a letter or number
 	//
-	//    * Be between 3 and 128 characters
+	//   - Be between 3 and 128 characters
 	//
-	//    * Have no adjacent periods, underscores or dashes. Names like my-_namespace
-	//    and my--namespace are not valid.
+	//   - Have no adjacent periods, underscores or dashes. Names like my-_namespace
+	//     and my--namespace are not valid.
 	//
-	//    * Not be in IP address format (for example, 192.168.5.4)
+	//   - Not be in IP address format (for example, 192.168.5.4)
+	//
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
 	// Specifies the name of the Amazon S3 bucket designated for publishing log
@@ -102,8 +104,7 @@ type TrailSpec struct {
 	// Specifies the name of the Amazon SNS topic defined for notification of log
 	// file delivery. The maximum length is 256 characters.
 	SNSTopicName *string `json:"snsTopicName,omitempty"`
-
-	Tags []*Tag `json:"tags,omitempty"`
+	Tags         []*Tag  `json:"tags,omitempty"`
 }
 
 // TrailStatus defines the observed state of Trail

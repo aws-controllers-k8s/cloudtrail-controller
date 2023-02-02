@@ -52,8 +52,8 @@ spec:
                     help you control costs by logging only those events that are important
                     to you. For more information about advanced event selectors, see
                     Logging data events for trails (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html)
-                    in the CloudTrail User Guide. \n * readOnly \n * eventSource \n
-                    * eventName \n * eventCategory \n * resources.type \n * resources.ARN
+                    in the CloudTrail User Guide. \n - readOnly \n - eventSource \n
+                    - eventName \n - eventCategory \n - resources.type \n - resources.ARN
                     \n You cannot apply both event selectors and advanced event selectors
                     to a trail."
                   properties:
