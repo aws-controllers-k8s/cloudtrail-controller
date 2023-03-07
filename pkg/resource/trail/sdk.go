@@ -77,6 +77,9 @@ func (rm *resourceManager) sdkFind(
 	resp, err = rm.sdkapi.GetTrailWithContext(ctx, input)
 	rm.metrics.RecordAPICall("READ_ONE", "GetTrail", err)
 	if err != nil {
+		if reqErr, ok := ackerr.AWSRequestFailure(err); ok && reqErr.StatusCode() == 404 {
+			return nil, ackerr.NotFound
+		}
 		if awsErr, ok := ackerr.AWSError(err); ok && awsErr.Code() == "TrailNotFoundException" {
 			return nil, ackerr.NotFound
 		}
