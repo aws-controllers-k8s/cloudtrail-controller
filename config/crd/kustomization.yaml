@@ -1,7 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-bases:
-  - common
 resources:
+  - common
   - bases/cloudtrail.services.k8s.aws_eventdatastores.yaml
   - bases/cloudtrail.services.k8s.aws_trails.yaml

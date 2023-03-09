@@ -93,6 +93,9 @@ func (rm *resourceManager) sdkFind(
 	resp, err = rm.sdkapi.GetEventDataStoreWithContext(ctx, input)
 	rm.metrics.RecordAPICall("READ_ONE", "GetEventDataStore", err)
 	if err != nil {
+		if reqErr, ok := ackerr.AWSRequestFailure(err); ok && reqErr.StatusCode() == 404 {
+			return nil, ackerr.NotFound
+		}
 		if awsErr, ok := ackerr.AWSError(err); ok && awsErr.Code() == "UNKNOWN" {
 			return nil, ackerr.NotFound
 		}
@@ -572,7 +575,7 @@ func (rm *resourceManager) sdkUpdate(
 	} else if !delta.DifferentExcept("Spec.Tags") {
 		return desired, nil
 	}
-	input, err := rm.newUpdateRequestPayload(ctx, desired)
+	input, err := rm.newUpdateRequestPayload(ctx, desired, delta)
 	if err != nil {
 		return nil, err
 	}
@@ -726,6 +729,7 @@ func (rm *resourceManager) sdkUpdate(
 func (rm *resourceManager) newUpdateRequestPayload(
 	ctx context.Context,
 	r *resource,
+	delta *ackcompare.Delta,
 ) (*svcsdk.UpdateEventDataStoreInput, error) {
 	res := &svcsdk.UpdateEventDataStoreInput{}
 
