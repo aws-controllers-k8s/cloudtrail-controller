@@ -44,8 +44,12 @@ func newResourceDelta(
 	}
 	customPreCompare(delta, a, b)
 
-	if !reflect.DeepEqual(a.ko.Spec.AdvancedEventSelectors, b.ko.Spec.AdvancedEventSelectors) {
+	if len(a.ko.Spec.AdvancedEventSelectors) != len(b.ko.Spec.AdvancedEventSelectors) {
 		delta.Add("Spec.AdvancedEventSelectors", a.ko.Spec.AdvancedEventSelectors, b.ko.Spec.AdvancedEventSelectors)
+	} else if len(a.ko.Spec.AdvancedEventSelectors) > 0 {
+		if !reflect.DeepEqual(a.ko.Spec.AdvancedEventSelectors, b.ko.Spec.AdvancedEventSelectors) {
+			delta.Add("Spec.AdvancedEventSelectors", a.ko.Spec.AdvancedEventSelectors, b.ko.Spec.AdvancedEventSelectors)
+		}
 	}
 	if ackcompare.HasNilDifference(a.ko.Spec.MultiRegionEnabled, b.ko.Spec.MultiRegionEnabled) {
 		delta.Add("Spec.MultiRegionEnabled", a.ko.Spec.MultiRegionEnabled, b.ko.Spec.MultiRegionEnabled)
