@@ -46,3 +46,114 @@ If release name contains chart name it will be used as a full name.
 {{- define "aws.credentials.path" -}}
 {{- printf "%s/%s" (include "aws.credentials.secret_mount_path" .) .Values.aws.credentials.secretKey -}}
 {{- end -}}
+
+{{/* The rules a of ClusterRole or Role */}}
+{{- define "controller-role-rules" }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - eventdatastores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - eventdatastores/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - trails
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cloudtrail.services.k8s.aws
+  resources:
+  - trails/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - services.k8s.aws
+  resources:
+  - adoptedresources
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - services.k8s.aws
+  resources:
+  - adoptedresources/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - services.k8s.aws
+  resources:
+  - fieldexports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - services.k8s.aws
+  resources:
+  - fieldexports/status
+  verbs:
+  - get
+  - patch
+  - update
+{{- end }}
