@@ -15,6 +15,51 @@
 
 package v1alpha1
 
+type BillingMode string
+
+const (
+	BillingMode_EXTENDABLE_RETENTION_PRICING BillingMode = "EXTENDABLE_RETENTION_PRICING"
+	BillingMode_FIXED_RETENTION_PRICING      BillingMode = "FIXED_RETENTION_PRICING"
+)
+
+type DashboardStatus string
+
+const (
+	DashboardStatus_CREATED  DashboardStatus = "CREATED"
+	DashboardStatus_CREATING DashboardStatus = "CREATING"
+	DashboardStatus_DELETING DashboardStatus = "DELETING"
+	DashboardStatus_UPDATED  DashboardStatus = "UPDATED"
+	DashboardStatus_UPDATING DashboardStatus = "UPDATING"
+)
+
+type DashboardType string
+
+const (
+	DashboardType_CUSTOM  DashboardType = "CUSTOM"
+	DashboardType_MANAGED DashboardType = "MANAGED"
+)
+
+type DeliveryStatus string
+
+const (
+	DeliveryStatus_ACCESS_DENIED              DeliveryStatus = "ACCESS_DENIED"
+	DeliveryStatus_ACCESS_DENIED_SIGNING_FILE DeliveryStatus = "ACCESS_DENIED_SIGNING_FILE"
+	DeliveryStatus_CANCELLED                  DeliveryStatus = "CANCELLED"
+	DeliveryStatus_FAILED                     DeliveryStatus = "FAILED"
+	DeliveryStatus_FAILED_SIGNING_FILE        DeliveryStatus = "FAILED_SIGNING_FILE"
+	DeliveryStatus_PENDING                    DeliveryStatus = "PENDING"
+	DeliveryStatus_RESOURCE_NOT_FOUND         DeliveryStatus = "RESOURCE_NOT_FOUND"
+	DeliveryStatus_SUCCESS                    DeliveryStatus = "SUCCESS"
+	DeliveryStatus_UNKNOWN                    DeliveryStatus = "UNKNOWN"
+)
+
+type DestinationType string
+
+const (
+	DestinationType_AWS_SERVICE      DestinationType = "AWS_SERVICE"
+	DestinationType_EVENT_DATA_STORE DestinationType = "EVENT_DATA_STORE"
+)
+
 type EventCategory string
 
 const (
@@ -24,9 +69,39 @@ const (
 type EventDataStoreStatus_SDK string
 
 const (
-	EventDataStoreStatus_SDK_CREATED          EventDataStoreStatus_SDK = "CREATED"
-	EventDataStoreStatus_SDK_ENABLED          EventDataStoreStatus_SDK = "ENABLED"
-	EventDataStoreStatus_SDK_PENDING_DELETION EventDataStoreStatus_SDK = "PENDING_DELETION"
+	EventDataStoreStatus_SDK_CREATED            EventDataStoreStatus_SDK = "CREATED"
+	EventDataStoreStatus_SDK_ENABLED            EventDataStoreStatus_SDK = "ENABLED"
+	EventDataStoreStatus_SDK_PENDING_DELETION   EventDataStoreStatus_SDK = "PENDING_DELETION"
+	EventDataStoreStatus_SDK_STARTING_INGESTION EventDataStoreStatus_SDK = "STARTING_INGESTION"
+	EventDataStoreStatus_SDK_STOPPED_INGESTION  EventDataStoreStatus_SDK = "STOPPED_INGESTION"
+	EventDataStoreStatus_SDK_STOPPING_INGESTION EventDataStoreStatus_SDK = "STOPPING_INGESTION"
+)
+
+type FederationStatus string
+
+const (
+	FederationStatus_DISABLED  FederationStatus = "DISABLED"
+	FederationStatus_DISABLING FederationStatus = "DISABLING"
+	FederationStatus_ENABLED   FederationStatus = "ENABLED"
+	FederationStatus_ENABLING  FederationStatus = "ENABLING"
+)
+
+type ImportFailureStatus string
+
+const (
+	ImportFailureStatus_FAILED    ImportFailureStatus = "FAILED"
+	ImportFailureStatus_RETRY     ImportFailureStatus = "RETRY"
+	ImportFailureStatus_SUCCEEDED ImportFailureStatus = "SUCCEEDED"
+)
+
+type ImportStatus string
+
+const (
+	ImportStatus_COMPLETED    ImportStatus = "COMPLETED"
+	ImportStatus_FAILED       ImportStatus = "FAILED"
+	ImportStatus_INITIALIZING ImportStatus = "INITIALIZING"
+	ImportStatus_IN_PROGRESS  ImportStatus = "IN_PROGRESS"
+	ImportStatus_STOPPED      ImportStatus = "STOPPED"
 )
 
 type InsightType string
@@ -36,34 +111,55 @@ const (
 	InsightType_ApiErrorRateInsight InsightType = "ApiErrorRateInsight"
 )
 
+type InsightsMetricDataType string
+
+const (
+	InsightsMetricDataType_FillWithZeros InsightsMetricDataType = "FillWithZeros"
+	InsightsMetricDataType_NonZeroData   InsightsMetricDataType = "NonZeroData"
+)
+
 type LookupAttributeKey string
 
 const (
+	LookupAttributeKey_AccessKeyId  LookupAttributeKey = "AccessKeyId"
 	LookupAttributeKey_EventId      LookupAttributeKey = "EventId"
 	LookupAttributeKey_EventName    LookupAttributeKey = "EventName"
-	LookupAttributeKey_ReadOnly     LookupAttributeKey = "ReadOnly"
-	LookupAttributeKey_Username     LookupAttributeKey = "Username"
-	LookupAttributeKey_ResourceType LookupAttributeKey = "ResourceType"
-	LookupAttributeKey_ResourceName LookupAttributeKey = "ResourceName"
 	LookupAttributeKey_EventSource  LookupAttributeKey = "EventSource"
-	LookupAttributeKey_AccessKeyId  LookupAttributeKey = "AccessKeyId"
+	LookupAttributeKey_ReadOnly     LookupAttributeKey = "ReadOnly"
+	LookupAttributeKey_ResourceName LookupAttributeKey = "ResourceName"
+	LookupAttributeKey_ResourceType LookupAttributeKey = "ResourceType"
+	LookupAttributeKey_Username     LookupAttributeKey = "Username"
 )
 
 type QueryStatus string
 
 const (
+	QueryStatus_CANCELLED QueryStatus = "CANCELLED"
+	QueryStatus_FAILED    QueryStatus = "FAILED"
+	QueryStatus_FINISHED  QueryStatus = "FINISHED"
 	QueryStatus_QUEUED    QueryStatus = "QUEUED"
 	QueryStatus_RUNNING   QueryStatus = "RUNNING"
-	QueryStatus_FINISHED  QueryStatus = "FINISHED"
-	QueryStatus_FAILED    QueryStatus = "FAILED"
-	QueryStatus_CANCELLED QueryStatus = "CANCELLED"
 	QueryStatus_TIMED_OUT QueryStatus = "TIMED_OUT"
 )
 
 type ReadWriteType string
 
 const (
+	ReadWriteType_All       ReadWriteType = "All"
 	ReadWriteType_ReadOnly  ReadWriteType = "ReadOnly"
 	ReadWriteType_WriteOnly ReadWriteType = "WriteOnly"
-	ReadWriteType_All       ReadWriteType = "All"
+)
+
+type RefreshScheduleFrequencyUnit string
+
+const (
+	RefreshScheduleFrequencyUnit_DAYS  RefreshScheduleFrequencyUnit = "DAYS"
+	RefreshScheduleFrequencyUnit_HOURS RefreshScheduleFrequencyUnit = "HOURS"
+)
+
+type RefreshScheduleStatus string
+
+const (
+	RefreshScheduleStatus_DISABLED RefreshScheduleStatus = "DISABLED"
+	RefreshScheduleStatus_ENABLED  RefreshScheduleStatus = "ENABLED"
 )

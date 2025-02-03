@@ -28,8 +28,10 @@ import (
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	ackrequeue "github.com/aws-controllers-k8s/runtime/pkg/requeue"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
-	"github.com/aws/aws-sdk-go/aws"
-	svcsdk "github.com/aws/aws-sdk-go/service/cloudtrail"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	svcsdk "github.com/aws/aws-sdk-go-v2/service/cloudtrail"
+	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
+	smithy "github.com/aws/smithy-go"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -40,8 +42,7 @@ import (
 var (
 	_ = &metav1.Time{}
 	_ = strings.ToLower("")
-	_ = &aws.JSONValue{}
-	_ = &svcsdk.CloudTrail{}
+	_ = &svcsdk.Client{}
 	_ = &svcapitypes.Trail{}
 	_ = ackv1alpha1.AWSAccountID("")
 	_ = &ackerr.NotFound
@@ -49,6 +50,7 @@ var (
 	_ = &reflect.Value{}
 	_ = fmt.Sprintf("")
 	_ = &ackrequeue.NoRequeue{}
+	_ = &aws.Config{}
 )
 
 // sdkFind returns SDK-specific information about a supplied resource
@@ -74,13 +76,11 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	var resp *svcsdk.GetTrailOutput
-	resp, err = rm.sdkapi.GetTrailWithContext(ctx, input)
+	resp, err = rm.sdkapi.GetTrail(ctx, input)
 	rm.metrics.RecordAPICall("READ_ONE", "GetTrail", err)
 	if err != nil {
-		if reqErr, ok := ackerr.AWSRequestFailure(err); ok && reqErr.StatusCode() == 404 {
-			return nil, ackerr.NotFound
-		}
-		if awsErr, ok := ackerr.AWSError(err); ok && awsErr.Code() == "TrailNotFoundException" {
+		var awsErr smithy.APIError
+		if errors.As(err, &awsErr) && awsErr.ErrorCode() == "TrailNotFoundException" {
 			return nil, ackerr.NotFound
 		}
 		return nil, err
@@ -183,7 +183,7 @@ func (rm *resourceManager) newDescribeRequestPayload(
 	res := &svcsdk.GetTrailInput{}
 
 	if r.ko.Spec.Name != nil {
-		res.SetName(*r.ko.Spec.Name)
+		res.Name = r.ko.Spec.Name
 	}
 
 	return res, nil
@@ -208,7 +208,7 @@ func (rm *resourceManager) sdkCreate(
 
 	var resp *svcsdk.CreateTrailOutput
 	_ = resp
-	resp, err = rm.sdkapi.CreateTrailWithContext(ctx, input)
+	resp, err = rm.sdkapi.CreateTrail(ctx, input)
 	rm.metrics.RecordAPICall("CREATE", "CreateTrail", err)
 	if err != nil {
 		return nil, err
@@ -298,51 +298,51 @@ func (rm *resourceManager) newCreateRequestPayload(
 	res := &svcsdk.CreateTrailInput{}
 
 	if r.ko.Spec.CloudWatchLogsLogGroupARN != nil {
-		res.SetCloudWatchLogsLogGroupArn(*r.ko.Spec.CloudWatchLogsLogGroupARN)
+		res.CloudWatchLogsLogGroupArn = r.ko.Spec.CloudWatchLogsLogGroupARN
 	}
 	if r.ko.Spec.CloudWatchLogsRoleARN != nil {
-		res.SetCloudWatchLogsRoleArn(*r.ko.Spec.CloudWatchLogsRoleARN)
+		res.CloudWatchLogsRoleArn = r.ko.Spec.CloudWatchLogsRoleARN
 	}
 	if r.ko.Spec.EnableLogFileValidation != nil {
-		res.SetEnableLogFileValidation(*r.ko.Spec.EnableLogFileValidation)
+		res.EnableLogFileValidation = r.ko.Spec.EnableLogFileValidation
 	}
 	if r.ko.Spec.IncludeGlobalServiceEvents != nil {
-		res.SetIncludeGlobalServiceEvents(*r.ko.Spec.IncludeGlobalServiceEvents)
+		res.IncludeGlobalServiceEvents = r.ko.Spec.IncludeGlobalServiceEvents
 	}
 	if r.ko.Spec.IsMultiRegionTrail != nil {
-		res.SetIsMultiRegionTrail(*r.ko.Spec.IsMultiRegionTrail)
+		res.IsMultiRegionTrail = r.ko.Spec.IsMultiRegionTrail
 	}
 	if r.ko.Spec.IsOrganizationTrail != nil {
-		res.SetIsOrganizationTrail(*r.ko.Spec.IsOrganizationTrail)
+		res.IsOrganizationTrail = r.ko.Spec.IsOrganizationTrail
 	}
 	if r.ko.Spec.KMSKeyID != nil {
-		res.SetKmsKeyId(*r.ko.Spec.KMSKeyID)
+		res.KmsKeyId = r.ko.Spec.KMSKeyID
 	}
 	if r.ko.Spec.Name != nil {
-		res.SetName(*r.ko.Spec.Name)
+		res.Name = r.ko.Spec.Name
 	}
 	if r.ko.Spec.S3BucketName != nil {
-		res.SetS3BucketName(*r.ko.Spec.S3BucketName)
+		res.S3BucketName = r.ko.Spec.S3BucketName
 	}
 	if r.ko.Spec.S3KeyPrefix != nil {
-		res.SetS3KeyPrefix(*r.ko.Spec.S3KeyPrefix)
+		res.S3KeyPrefix = r.ko.Spec.S3KeyPrefix
 	}
 	if r.ko.Spec.SNSTopicName != nil {
-		res.SetSnsTopicName(*r.ko.Spec.SNSTopicName)
+		res.SnsTopicName = r.ko.Spec.SNSTopicName
 	}
 	if r.ko.Spec.Tags != nil {
-		f11 := []*svcsdk.Tag{}
+		f11 := []svcsdktypes.Tag{}
 		for _, f11iter := range r.ko.Spec.Tags {
-			f11elem := &svcsdk.Tag{}
+			f11elem := &svcsdktypes.Tag{}
 			if f11iter.Key != nil {
-				f11elem.SetKey(*f11iter.Key)
+				f11elem.Key = f11iter.Key
 			}
 			if f11iter.Value != nil {
-				f11elem.SetValue(*f11iter.Value)
+				f11elem.Value = f11iter.Value
 			}
-			f11 = append(f11, f11elem)
+			f11 = append(f11, *f11elem)
 		}
-		res.SetTagsList(f11)
+		res.TagsList = f11
 	}
 
 	return res, nil
@@ -375,7 +375,7 @@ func (rm *resourceManager) sdkDelete(
 	}
 	var resp *svcsdk.DeleteTrailOutput
 	_ = resp
-	resp, err = rm.sdkapi.DeleteTrailWithContext(ctx, input)
+	resp, err = rm.sdkapi.DeleteTrail(ctx, input)
 	rm.metrics.RecordAPICall("DELETE", "DeleteTrail", err)
 	return nil, err
 }
@@ -388,7 +388,7 @@ func (rm *resourceManager) newDeleteRequestPayload(
 	res := &svcsdk.DeleteTrailInput{}
 
 	if r.ko.Spec.Name != nil {
-		res.SetName(*r.ko.Spec.Name)
+		res.Name = r.ko.Spec.Name
 	}
 
 	return res, nil
@@ -496,11 +496,12 @@ func (rm *resourceManager) terminalAWSError(err error) bool {
 	if err == nil {
 		return false
 	}
-	awsErr, ok := ackerr.AWSError(err)
-	if !ok {
+
+	var terminalErr smithy.APIError
+	if !errors.As(err, &terminalErr) {
 		return false
 	}
-	switch awsErr.Code() {
+	switch terminalErr.ErrorCode() {
 	case "InvalidParameterCombination",
 		"InvalidParameterValue",
 		"InvalidQueryParameter",

@@ -5,7 +5,7 @@ import (
 
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
-	svcsdk "github.com/aws/aws-sdk-go/service/cloudtrail"
+	svcsdk "github.com/aws/aws-sdk-go-v2/service/cloudtrail"
 )
 
 // customUpdateTrail implements a custom logic for handling Trail
@@ -55,7 +55,7 @@ func (rm *resourceManager) syncTrailTags(
 	// Tags to create/update
 
 	if len(removed) > 0 {
-		_, err = rm.sdkapi.RemoveTagsWithContext(
+		_, err = rm.sdkapi.RemoveTags(
 			ctx,
 			&svcsdk.RemoveTagsInput{
 				ResourceId: (*string)(latest.ko.Status.ACKResourceMetadata.ARN),
@@ -69,7 +69,7 @@ func (rm *resourceManager) syncTrailTags(
 	}
 
 	if len(added) > 0 {
-		_, err = rm.sdkapi.AddTagsWithContext(
+		_, err = rm.sdkapi.AddTags(
 			ctx,
 			&svcsdk.AddTagsInput{
 				ResourceId: (*string)(latest.ko.Status.ACKResourceMetadata.ARN),
@@ -97,37 +97,37 @@ func (rm *resourceManager) updateTrailField(
 	}
 
 	if desired.ko.Spec.CloudWatchLogsLogGroupARN != nil {
-		input.SetCloudWatchLogsLogGroupArn(*desired.ko.Spec.CloudWatchLogsLogGroupARN)
+		input.CloudWatchLogsLogGroupArn = desired.ko.Spec.CloudWatchLogsLogGroupARN
 	}
 	if desired.ko.Spec.CloudWatchLogsRoleARN != nil {
-		input.SetCloudWatchLogsRoleArn(*desired.ko.Spec.CloudWatchLogsRoleARN)
+		input.CloudWatchLogsRoleArn = desired.ko.Spec.CloudWatchLogsRoleARN
 	}
 	if desired.ko.Spec.EnableLogFileValidation != nil {
-		input.SetEnableLogFileValidation(*desired.ko.Spec.EnableLogFileValidation)
+		input.EnableLogFileValidation = desired.ko.Spec.EnableLogFileValidation
 	}
 	if desired.ko.Spec.IncludeGlobalServiceEvents != nil {
-		input.SetIncludeGlobalServiceEvents(*desired.ko.Spec.IncludeGlobalServiceEvents)
+		input.IncludeGlobalServiceEvents = desired.ko.Spec.IncludeGlobalServiceEvents
 	}
 	if desired.ko.Spec.IsMultiRegionTrail != nil {
-		input.SetIsMultiRegionTrail(*desired.ko.Spec.IsMultiRegionTrail)
+		input.IsMultiRegionTrail = desired.ko.Spec.IsMultiRegionTrail
 	}
 	if desired.ko.Spec.IsOrganizationTrail != nil {
-		input.SetIsOrganizationTrail(*desired.ko.Spec.IsOrganizationTrail)
+		input.IsOrganizationTrail = desired.ko.Spec.IsOrganizationTrail
 	}
 	if desired.ko.Spec.KMSKeyID != nil {
-		input.SetKmsKeyId(*desired.ko.Spec.KMSKeyID)
+		input.KmsKeyId = desired.ko.Spec.KMSKeyID
 	}
 	if desired.ko.Spec.S3BucketName != nil {
-		input.SetS3BucketName(*desired.ko.Spec.S3BucketName)
+		input.S3BucketName = desired.ko.Spec.S3BucketName
 	}
 	if desired.ko.Spec.S3KeyPrefix != nil {
-		input.SetS3KeyPrefix(*desired.ko.Spec.S3KeyPrefix)
+		input.S3KeyPrefix = desired.ko.Spec.S3KeyPrefix
 	}
 	if desired.ko.Spec.SNSTopicName != nil {
-		input.SetSnsTopicName(*desired.ko.Spec.SNSTopicName)
+		input.SnsTopicName = desired.ko.Spec.SNSTopicName
 	}
 
-	_, err = rm.sdkapi.UpdateTrailWithContext(ctx, input)
+	_, err = rm.sdkapi.UpdateTrail(ctx, input)
 	rm.metrics.RecordAPICall("UPDATE", "UpdateTrail", err)
 	return err
 }

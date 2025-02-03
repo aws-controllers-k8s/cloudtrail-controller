@@ -28,25 +28,74 @@ var (
 	_ = ackv1alpha1.AWSAccountID("")
 )
 
-// Advanced event selectors let you create fine-grained selectors for the following
-// CloudTrail event record ﬁelds. They help you control costs by logging only
-// those events that are important to you. For more information about advanced
-// event selectors, see Logging data events for trails (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html)
-// in the CloudTrail User Guide.
+// Advanced event selectors let you create fine-grained selectors for CloudTrail
+// management, data, and network activity events. They help you control costs
+// by logging only those events that are important to you. For more information
+// about configuring advanced event selectors, see the Logging data events (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html),
+// Logging network activity events (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-network-events-with-cloudtrail.html),
+// and Logging management events (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-management-events-with-cloudtrail.html)
+// topics in the CloudTrail User Guide.
 //
-//   - readOnly
+// You cannot apply both event selectors and advanced event selectors to a trail.
+//
+// Supported CloudTrail event record fields for management events
+//
+//   - eventCategory (required)
 //
 //   - eventSource
 //
+//   - readOnly
+//
+// The following additional fields are available for event data stores:
+//
 //   - eventName
 //
-//   - eventCategory
+//   - eventType
 //
-//   - resources.type
+//   - sessionCredentialFromConsole
+//
+//   - userIdentity.arn
+//
+// Supported CloudTrail event record fields for data events
+//
+//   - eventCategory (required)
+//
+//   - resources.type (required)
+//
+//   - readOnly
+//
+//   - eventName
 //
 //   - resources.ARN
 //
-// You cannot apply both event selectors and advanced event selectors to a trail.
+// The following additional fields are available for event data stores:
+//
+//   - eventSource
+//
+//   - eventType
+//
+//   - sessionCredentialFromConsole
+//
+//   - userIdentity.arn
+//
+// # Supported CloudTrail event record fields for network activity events
+//
+// Network activity events is in preview release for CloudTrail and is subject
+// to change.
+//
+//   - eventCategory (required)
+//
+//   - eventSource (required)
+//
+//   - eventName
+//
+//   - errorCode - The only valid value for errorCode is VpceAccessDenied.
+//
+//   - vpcEndpointId
+//
+// For event data stores for CloudTrail Insights events, Config configuration
+// items, Audit Manager evidence, or events outside of Amazon Web Services,
+// the only supported field is eventCategory.
 type AdvancedEventSelector struct {
 	FieldSelectors []*AdvancedFieldSelector `json:"fieldSelectors,omitempty"`
 	Name           *string                  `json:"name,omitempty"`
@@ -63,33 +112,41 @@ type AdvancedFieldSelector struct {
 	StartsWith    []*string `json:"startsWith,omitempty"`
 }
 
-// The Amazon S3 buckets, Lambda functions, or Amazon DynamoDB tables that you
-// specify in your event selectors for your trail to log data events. Data events
-// provide information about the resource operations performed on or within
-// a resource itself. These are also known as data plane operations. You can
-// specify up to 250 data resources for a trail.
+// You can configure the DataResource in an EventSelector to log data events
+// for the following three resource types:
+//
+//   - AWS::DynamoDB::Table
+//
+//   - AWS::Lambda::Function
+//
+//   - AWS::S3::Object
+//
+// To log data events for all other resource types including objects stored
+// in directory buckets (https://docs.aws.amazon.com/AmazonS3/latest/userguide/directory-buckets-overview.html),
+// you must use AdvancedEventSelectors (https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_AdvancedEventSelector.html).
+// You must also use AdvancedEventSelectors if you want to filter on the eventName
+// field.
+//
+// Configure the DataResource to specify the resource type and resource ARNs
+// for which you want to log data events.
 //
 // The total number of allowed data resources is 250. This number can be distributed
 // between 1 and 5 event selectors, but the total cannot exceed 250 across all
-// selectors.
-//
-// If you are using advanced event selectors, the maximum total number of values
-// for all conditions, across all advanced event selectors for the trail, is
-// 500.
+// selectors for the trail.
 //
 // The following example demonstrates how logging works when you configure logging
-// of all data events for an S3 bucket named bucket-1. In this example, the
-// CloudTrail user specified an empty prefix, and the option to log both Read
-// and Write data events.
+// of all data events for a general purpose bucket named amzn-s3-demo-bucket1.
+// In this example, the CloudTrail user specified an empty prefix, and the option
+// to log both Read and Write data events.
 //
-// A user uploads an image file to bucket-1.
+// A user uploads an image file to amzn-s3-demo-bucket1.
 //
 // The PutObject API operation is an Amazon S3 object-level API. It is recorded
 // as a data event in CloudTrail. Because the CloudTrail user specified an S3
 // bucket with an empty prefix, events that occur on any object in that bucket
 // are logged. The trail processes and logs the event.
 //
-// A user uploads an object to an Amazon S3 bucket named arn:aws:s3:::bucket-2.
+// A user uploads an object to an Amazon S3 bucket named arn:aws:s3:::amzn-s3-demo-bucket1.
 //
 // The PutObject API operation occurred for an object in an S3 bucket that the
 // CloudTrail user didn't specify for the trail. The trail doesn’t log the
@@ -130,9 +187,8 @@ type Event struct {
 
 // A storage lake of event data against which you can run complex SQL-based
 // queries. An event data store can include events that you have logged on your
-// account from the last 90 to 2555 days (about three months to up to seven
-// years). To select events for an event data store, use advanced event selectors
-// (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced).
+// account. To select events for an event data store, use advanced event selectors
+// (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-lake-concepts.html#adv-event-selectors).
 type EventDataStore_SDK struct {
 	AdvancedEventSelectors       []*AdvancedEventSelector `json:"advancedEventSelectors,omitempty"`
 	CreatedTimestamp             *metav1.Time             `json:"createdTimestamp,omitempty"`
@@ -161,9 +217,31 @@ type EventSelector struct {
 	IncludeManagementEvents *bool `json:"includeManagementEvents,omitempty"`
 }
 
-// Specifies an attribute and value that filter the events returned.
-type LookupAttribute struct {
-	AttributeValue *string `json:"attributeValue,omitempty"`
+// Provides information about an import failure.
+type ImportFailureListItem struct {
+	ErrorMessage    *string      `json:"errorMessage,omitempty"`
+	ErrorType       *string      `json:"errorType,omitempty"`
+	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+	Location        *string      `json:"location,omitempty"`
+}
+
+// Contains information about an import that was returned by a lookup request.
+type ImportsListItem struct {
+	CreatedTimestamp *metav1.Time `json:"createdTimestamp,omitempty"`
+	UpdatedTimestamp *metav1.Time `json:"updatedTimestamp,omitempty"`
+}
+
+// A table showing information about the most recent successful and failed attempts
+// to ingest events.
+type IngestionStatus struct {
+	LatestIngestionAttemptTime *metav1.Time `json:"latestIngestionAttemptTime,omitempty"`
+	LatestIngestionSuccessTime *metav1.Time `json:"latestIngestionSuccessTime,omitempty"`
+}
+
+// Contains information about a partition key for an event data store.
+type PartitionKey struct {
+	Name *string `json:"name,omitempty"`
+	Type *string `json:"type_,omitempty"`
 }
 
 // Contains information about a returned public key.
@@ -199,13 +277,27 @@ type ResourceTag struct {
 	TagsList []*Tag `json:"tagsList,omitempty"`
 }
 
-// A custom key-value pair associated with a resource such as a CloudTrail trail.
+// The settings for the source S3 bucket.
+type S3ImportSource struct {
+	S3BucketAccessRoleARN *string `json:"s3BucketAccessRoleARN,omitempty"`
+	S3BucketRegion        *string `json:"s3BucketRegion,omitempty"`
+	S3LocationURI         *string `json:"s3LocationURI,omitempty"`
+}
+
+// Contains configuration information about the channel.
+type SourceConfig struct {
+	AdvancedEventSelectors []*AdvancedEventSelector `json:"advancedEventSelectors,omitempty"`
+	ApplyToAllRegions      *bool                    `json:"applyToAllRegions,omitempty"`
+}
+
+// A custom key-value pair associated with a resource such as a CloudTrail trail,
+// event data store, dashboard, or channel.
 type Tag struct {
 	Key   *string `json:"key,omitempty"`
 	Value *string `json:"value,omitempty"`
 }
 
-// Information about a CloudTrail trail, including the trail's name, home region,
+// Information about a CloudTrail trail, including the trail's name, home Region,
 // and Amazon Resource Name (ARN).
 type TrailInfo struct {
 	HomeRegion *string `json:"homeRegion,omitempty"`
