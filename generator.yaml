@@ -1,3 +1,13 @@
+ignore:
+  resource_names:
+    - Channel
+    - Dashboard
+  field_paths:
+    - CreateEventDataStoreInput.BillingMode
+    - CreateEventDataStoreOutput.BillingMode
+    - CreateEventDataStoreInput.KmsKeyId
+    - CreateEventDataStoreOutput.KmsKeyId
+    - CreateEventDataStoreInput.StartIngestion
 resources:
   Trail:
     fields:

@@ -27,10 +27,12 @@ type TrailSpec struct {
 
 	// Specifies a log group name using an Amazon Resource Name (ARN), a unique
 	// identifier that represents the log group to which CloudTrail logs will be
-	// delivered. Not required unless you specify CloudWatchLogsRoleArn.
+	// delivered. You must use a log group that exists in your account.
+	//
+	// Not required unless you specify CloudWatchLogsRoleArn.
 	CloudWatchLogsLogGroupARN *string `json:"cloudWatchLogsLogGroupARN,omitempty"`
 	// Specifies the role for the CloudWatch Logs endpoint to assume to write to
-	// a user's log group.
+	// a user's log group. You must use a role that exists in your account.
 	CloudWatchLogsRoleARN *string `json:"cloudWatchLogsRoleARN,omitempty"`
 	// Specifies whether log file integrity validation is enabled. The default is
 	// false.
@@ -47,19 +49,19 @@ type TrailSpec struct {
 	// Specifies whether the trail is publishing events from global services such
 	// as IAM to the log files.
 	IncludeGlobalServiceEvents *bool `json:"includeGlobalServiceEvents,omitempty"`
-	// Specifies whether the trail is created in the current region or in all regions.
-	// The default is false, which creates a trail only in the region where you
+	// Specifies whether the trail is created in the current Region or in all Regions.
+	// The default is false, which creates a trail only in the Region where you
 	// are signed in. As a best practice, consider creating trails that log events
-	// in all regions.
+	// in all Regions.
 	IsMultiRegionTrail *bool `json:"isMultiRegionTrail,omitempty"`
 	// Specifies whether the trail is created for all accounts in an organization
 	// in Organizations, or only for the current Amazon Web Services account. The
 	// default is false, and cannot be true unless the call is made on behalf of
-	// an Amazon Web Services account that is the management account for an organization
-	// in Organizations.
+	// an Amazon Web Services account that is the management account or delegated
+	// administrator account for an organization in Organizations.
 	IsOrganizationTrail *bool `json:"isOrganizationTrail,omitempty"`
 	// Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
-	// The value can be an alias name prefixed by "alias/", a fully specified ARN
+	// The value can be an alias name prefixed by alias/, a fully specified ARN
 	// to an alias, a fully specified ARN to a key, or a globally unique identifier.
 	//
 	// CloudTrail also supports KMS multi-Region keys. For more information about
@@ -93,12 +95,14 @@ type TrailSpec struct {
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
 	// Specifies the name of the Amazon S3 bucket designated for publishing log
-	// files. See Amazon S3 Bucket Naming Requirements (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create_trail_naming_policy.html).
+	// files. For information about bucket naming rules, see Bucket naming rules
+	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html)
+	// in the Amazon Simple Storage Service User Guide.
 	// +kubebuilder:validation:Required
 	S3BucketName *string `json:"s3BucketName"`
 	// Specifies the Amazon S3 key prefix that comes after the name of the bucket
 	// you have designated for log file delivery. For more information, see Finding
-	// Your CloudTrail Log Files (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-find-log-files.html).
+	// Your CloudTrail Log Files (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/get-and-view-cloudtrail-log-files.html#cloudtrail-find-log-files).
 	// The maximum length is 200 characters.
 	S3KeyPrefix *string `json:"s3KeyPrefix,omitempty"`
 	// Specifies the name of the Amazon SNS topic defined for notification of log

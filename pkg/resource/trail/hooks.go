@@ -20,7 +20,8 @@ import (
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
 	ackutil "github.com/aws-controllers-k8s/runtime/pkg/util"
-	svcsdk "github.com/aws/aws-sdk-go/service/cloudtrail"
+	svcsdk "github.com/aws/aws-sdk-go-v2/service/cloudtrail"
+	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
 
 	svcapitypes "github.com/aws-controllers-k8s/cloudtrail-controller/apis/v1alpha1"
 )
@@ -54,10 +55,10 @@ func (rm *resourceManager) getTrailTags(
 ) ([]*svcapitypes.Tag, error) {
 	tags := []*svcapitypes.Tag{}
 
-	listTagsResponse, err := rm.sdkapi.ListTagsWithContext(
+	listTagsResponse, err := rm.sdkapi.ListTags(
 		ctx,
 		&svcsdk.ListTagsInput{
-			ResourceIdList: []*string{&resourceARN},
+			ResourceIdList: []string{resourceARN},
 		},
 	)
 	rm.metrics.RecordAPICall("GET", "ListTags", err)
@@ -130,10 +131,10 @@ mainLoop:
 }
 
 // sdkTagsFromResourceTags transforms a *svcapitypes.Tag array to a *svcsdk.Tag array.
-func sdkTagsFromResourceTags(rTags []*svcapitypes.Tag) []*svcsdk.Tag {
-	tags := make([]*svcsdk.Tag, len(rTags))
+func sdkTagsFromResourceTags(rTags []*svcapitypes.Tag) []svcsdktypes.Tag {
+	tags := make([]svcsdktypes.Tag, len(rTags))
 	for i := range rTags {
-		tags[i] = &svcsdk.Tag{
+		tags[i] = svcsdktypes.Tag{
 			Key:   rTags[i].Key,
 			Value: rTags[i].Value,
 		}

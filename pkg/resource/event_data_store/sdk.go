@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 
@@ -28,8 +29,10 @@ import (
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	ackrequeue "github.com/aws-controllers-k8s/runtime/pkg/requeue"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
-	"github.com/aws/aws-sdk-go/aws"
-	svcsdk "github.com/aws/aws-sdk-go/service/cloudtrail"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	svcsdk "github.com/aws/aws-sdk-go-v2/service/cloudtrail"
+	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
+	smithy "github.com/aws/smithy-go"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -40,8 +43,7 @@ import (
 var (
 	_ = &metav1.Time{}
 	_ = strings.ToLower("")
-	_ = &aws.JSONValue{}
-	_ = &svcsdk.CloudTrail{}
+	_ = &svcsdk.Client{}
 	_ = &svcapitypes.EventDataStore{}
 	_ = ackv1alpha1.AWSAccountID("")
 	_ = &ackerr.NotFound
@@ -49,6 +51,7 @@ var (
 	_ = &reflect.Value{}
 	_ = fmt.Sprintf("")
 	_ = &ackrequeue.NoRequeue{}
+	_ = &aws.Config{}
 )
 
 // sdkFind returns SDK-specific information about a supplied resource
@@ -90,13 +93,11 @@ func (rm *resourceManager) sdkFind(
 	input.EventDataStore = (*string)(r.ko.Status.ACKResourceMetadata.ARN)
 
 	var resp *svcsdk.GetEventDataStoreOutput
-	resp, err = rm.sdkapi.GetEventDataStoreWithContext(ctx, input)
+	resp, err = rm.sdkapi.GetEventDataStore(ctx, input)
 	rm.metrics.RecordAPICall("READ_ONE", "GetEventDataStore", err)
 	if err != nil {
-		if reqErr, ok := ackerr.AWSRequestFailure(err); ok && reqErr.StatusCode() == 404 {
-			return nil, ackerr.NotFound
-		}
-		if awsErr, ok := ackerr.AWSError(err); ok && awsErr.Code() == "UNKNOWN" {
+		var awsErr smithy.APIError
+		if errors.As(err, &awsErr) && awsErr.ErrorCode() == "EventDataStoreNotFound" {
 			return nil, ackerr.NotFound
 		}
 		return nil, err
@@ -115,61 +116,25 @@ func (rm *resourceManager) sdkFind(
 				for _, f0elemf0iter := range f0iter.FieldSelectors {
 					f0elemf0elem := &svcapitypes.AdvancedFieldSelector{}
 					if f0elemf0iter.EndsWith != nil {
-						f0elemf0elemf0 := []*string{}
-						for _, f0elemf0elemf0iter := range f0elemf0iter.EndsWith {
-							var f0elemf0elemf0elem string
-							f0elemf0elemf0elem = *f0elemf0elemf0iter
-							f0elemf0elemf0 = append(f0elemf0elemf0, &f0elemf0elemf0elem)
-						}
-						f0elemf0elem.EndsWith = f0elemf0elemf0
+						f0elemf0elem.EndsWith = aws.StringSlice(f0elemf0iter.EndsWith)
 					}
 					if f0elemf0iter.Equals != nil {
-						f0elemf0elemf1 := []*string{}
-						for _, f0elemf0elemf1iter := range f0elemf0iter.Equals {
-							var f0elemf0elemf1elem string
-							f0elemf0elemf1elem = *f0elemf0elemf1iter
-							f0elemf0elemf1 = append(f0elemf0elemf1, &f0elemf0elemf1elem)
-						}
-						f0elemf0elem.Equals = f0elemf0elemf1
+						f0elemf0elem.Equals = aws.StringSlice(f0elemf0iter.Equals)
 					}
 					if f0elemf0iter.Field != nil {
 						f0elemf0elem.Field = f0elemf0iter.Field
 					}
 					if f0elemf0iter.NotEndsWith != nil {
-						f0elemf0elemf3 := []*string{}
-						for _, f0elemf0elemf3iter := range f0elemf0iter.NotEndsWith {
-							var f0elemf0elemf3elem string
-							f0elemf0elemf3elem = *f0elemf0elemf3iter
-							f0elemf0elemf3 = append(f0elemf0elemf3, &f0elemf0elemf3elem)
-						}
-						f0elemf0elem.NotEndsWith = f0elemf0elemf3
+						f0elemf0elem.NotEndsWith = aws.StringSlice(f0elemf0iter.NotEndsWith)
 					}
 					if f0elemf0iter.NotEquals != nil {
-						f0elemf0elemf4 := []*string{}
-						for _, f0elemf0elemf4iter := range f0elemf0iter.NotEquals {
-							var f0elemf0elemf4elem string
-							f0elemf0elemf4elem = *f0elemf0elemf4iter
-							f0elemf0elemf4 = append(f0elemf0elemf4, &f0elemf0elemf4elem)
-						}
-						f0elemf0elem.NotEquals = f0elemf0elemf4
+						f0elemf0elem.NotEquals = aws.StringSlice(f0elemf0iter.NotEquals)
 					}
 					if f0elemf0iter.NotStartsWith != nil {
-						f0elemf0elemf5 := []*string{}
-						for _, f0elemf0elemf5iter := range f0elemf0iter.NotStartsWith {
-							var f0elemf0elemf5elem string
-							f0elemf0elemf5elem = *f0elemf0elemf5iter
-							f0elemf0elemf5 = append(f0elemf0elemf5, &f0elemf0elemf5elem)
-						}
-						f0elemf0elem.NotStartsWith = f0elemf0elemf5
+						f0elemf0elem.NotStartsWith = aws.StringSlice(f0elemf0iter.NotStartsWith)
 					}
 					if f0elemf0iter.StartsWith != nil {
-						f0elemf0elemf6 := []*string{}
-						for _, f0elemf0elemf6iter := range f0elemf0iter.StartsWith {
-							var f0elemf0elemf6elem string
-							f0elemf0elemf6elem = *f0elemf0elemf6iter
-							f0elemf0elemf6 = append(f0elemf0elemf6, &f0elemf0elemf6elem)
-						}
-						f0elemf0elem.StartsWith = f0elemf0elemf6
+						f0elemf0elem.StartsWith = aws.StringSlice(f0elemf0iter.StartsWith)
 					}
 					f0elemf0 = append(f0elemf0, f0elemf0elem)
 				}
@@ -212,12 +177,13 @@ func (rm *resourceManager) sdkFind(
 		ko.Spec.OrganizationEnabled = nil
 	}
 	if resp.RetentionPeriod != nil {
-		ko.Spec.RetentionPeriod = resp.RetentionPeriod
+		retentionPeriodCopy := int64(*resp.RetentionPeriod)
+		ko.Spec.RetentionPeriod = &retentionPeriodCopy
 	} else {
 		ko.Spec.RetentionPeriod = nil
 	}
-	if resp.Status != nil {
-		ko.Status.Status = resp.Status
+	if resp.Status != "" {
+		ko.Status.Status = aws.String(string(resp.Status))
 	} else {
 		ko.Status.Status = nil
 	}
@@ -257,7 +223,7 @@ func (rm *resourceManager) newDescribeRequestPayload(
 	res := &svcsdk.GetEventDataStoreInput{}
 
 	if r.ko.Spec.Name != nil {
-		res.SetEventDataStore(*r.ko.Spec.Name)
+		res.EventDataStore = r.ko.Spec.Name
 	}
 
 	return res, nil
@@ -282,7 +248,7 @@ func (rm *resourceManager) sdkCreate(
 
 	var resp *svcsdk.CreateEventDataStoreOutput
 	_ = resp
-	resp, err = rm.sdkapi.CreateEventDataStoreWithContext(ctx, input)
+	resp, err = rm.sdkapi.CreateEventDataStore(ctx, input)
 	rm.metrics.RecordAPICall("CREATE", "CreateEventDataStore", err)
 	if err != nil {
 		return nil, err
@@ -300,61 +266,25 @@ func (rm *resourceManager) sdkCreate(
 				for _, f0elemf0iter := range f0iter.FieldSelectors {
 					f0elemf0elem := &svcapitypes.AdvancedFieldSelector{}
 					if f0elemf0iter.EndsWith != nil {
-						f0elemf0elemf0 := []*string{}
-						for _, f0elemf0elemf0iter := range f0elemf0iter.EndsWith {
-							var f0elemf0elemf0elem string
-							f0elemf0elemf0elem = *f0elemf0elemf0iter
-							f0elemf0elemf0 = append(f0elemf0elemf0, &f0elemf0elemf0elem)
-						}
-						f0elemf0elem.EndsWith = f0elemf0elemf0
+						f0elemf0elem.EndsWith = aws.StringSlice(f0elemf0iter.EndsWith)
 					}
 					if f0elemf0iter.Equals != nil {
-						f0elemf0elemf1 := []*string{}
-						for _, f0elemf0elemf1iter := range f0elemf0iter.Equals {
-							var f0elemf0elemf1elem string
-							f0elemf0elemf1elem = *f0elemf0elemf1iter
-							f0elemf0elemf1 = append(f0elemf0elemf1, &f0elemf0elemf1elem)
-						}
-						f0elemf0elem.Equals = f0elemf0elemf1
+						f0elemf0elem.Equals = aws.StringSlice(f0elemf0iter.Equals)
 					}
 					if f0elemf0iter.Field != nil {
 						f0elemf0elem.Field = f0elemf0iter.Field
 					}
 					if f0elemf0iter.NotEndsWith != nil {
-						f0elemf0elemf3 := []*string{}
-						for _, f0elemf0elemf3iter := range f0elemf0iter.NotEndsWith {
-							var f0elemf0elemf3elem string
-							f0elemf0elemf3elem = *f0elemf0elemf3iter
-							f0elemf0elemf3 = append(f0elemf0elemf3, &f0elemf0elemf3elem)
-						}
-						f0elemf0elem.NotEndsWith = f0elemf0elemf3
+						f0elemf0elem.NotEndsWith = aws.StringSlice(f0elemf0iter.NotEndsWith)
 					}
 					if f0elemf0iter.NotEquals != nil {
-						f0elemf0elemf4 := []*string{}
-						for _, f0elemf0elemf4iter := range f0elemf0iter.NotEquals {
-							var f0elemf0elemf4elem string
-							f0elemf0elemf4elem = *f0elemf0elemf4iter
-							f0elemf0elemf4 = append(f0elemf0elemf4, &f0elemf0elemf4elem)
-						}
-						f0elemf0elem.NotEquals = f0elemf0elemf4
+						f0elemf0elem.NotEquals = aws.StringSlice(f0elemf0iter.NotEquals)
 					}
 					if f0elemf0iter.NotStartsWith != nil {
-						f0elemf0elemf5 := []*string{}
-						for _, f0elemf0elemf5iter := range f0elemf0iter.NotStartsWith {
-							var f0elemf0elemf5elem string
-							f0elemf0elemf5elem = *f0elemf0elemf5iter
-							f0elemf0elemf5 = append(f0elemf0elemf5, &f0elemf0elemf5elem)
-						}
-						f0elemf0elem.NotStartsWith = f0elemf0elemf5
+						f0elemf0elem.NotStartsWith = aws.StringSlice(f0elemf0iter.NotStartsWith)
 					}
 					if f0elemf0iter.StartsWith != nil {
-						f0elemf0elemf6 := []*string{}
-						for _, f0elemf0elemf6iter := range f0elemf0iter.StartsWith {
-							var f0elemf0elemf6elem string
-							f0elemf0elemf6elem = *f0elemf0elemf6iter
-							f0elemf0elemf6 = append(f0elemf0elemf6, &f0elemf0elemf6elem)
-						}
-						f0elemf0elem.StartsWith = f0elemf0elemf6
+						f0elemf0elem.StartsWith = aws.StringSlice(f0elemf0iter.StartsWith)
 					}
 					f0elemf0 = append(f0elemf0, f0elemf0elem)
 				}
@@ -397,12 +327,13 @@ func (rm *resourceManager) sdkCreate(
 		ko.Spec.OrganizationEnabled = nil
 	}
 	if resp.RetentionPeriod != nil {
-		ko.Spec.RetentionPeriod = resp.RetentionPeriod
+		retentionPeriodCopy := int64(*resp.RetentionPeriod)
+		ko.Spec.RetentionPeriod = &retentionPeriodCopy
 	} else {
 		ko.Spec.RetentionPeriod = nil
 	}
-	if resp.Status != nil {
-		ko.Status.Status = resp.Status
+	if resp.Status != "" {
+		ko.Status.Status = aws.String(string(resp.Status))
 	} else {
 		ko.Status.Status = nil
 	}
@@ -446,109 +377,78 @@ func (rm *resourceManager) newCreateRequestPayload(
 	res := &svcsdk.CreateEventDataStoreInput{}
 
 	if r.ko.Spec.AdvancedEventSelectors != nil {
-		f0 := []*svcsdk.AdvancedEventSelector{}
+		f0 := []svcsdktypes.AdvancedEventSelector{}
 		for _, f0iter := range r.ko.Spec.AdvancedEventSelectors {
-			f0elem := &svcsdk.AdvancedEventSelector{}
+			f0elem := &svcsdktypes.AdvancedEventSelector{}
 			if f0iter.FieldSelectors != nil {
-				f0elemf0 := []*svcsdk.AdvancedFieldSelector{}
+				f0elemf0 := []svcsdktypes.AdvancedFieldSelector{}
 				for _, f0elemf0iter := range f0iter.FieldSelectors {
-					f0elemf0elem := &svcsdk.AdvancedFieldSelector{}
+					f0elemf0elem := &svcsdktypes.AdvancedFieldSelector{}
 					if f0elemf0iter.EndsWith != nil {
-						f0elemf0elemf0 := []*string{}
-						for _, f0elemf0elemf0iter := range f0elemf0iter.EndsWith {
-							var f0elemf0elemf0elem string
-							f0elemf0elemf0elem = *f0elemf0elemf0iter
-							f0elemf0elemf0 = append(f0elemf0elemf0, &f0elemf0elemf0elem)
-						}
-						f0elemf0elem.SetEndsWith(f0elemf0elemf0)
+						f0elemf0elem.EndsWith = aws.ToStringSlice(f0elemf0iter.EndsWith)
 					}
 					if f0elemf0iter.Equals != nil {
-						f0elemf0elemf1 := []*string{}
-						for _, f0elemf0elemf1iter := range f0elemf0iter.Equals {
-							var f0elemf0elemf1elem string
-							f0elemf0elemf1elem = *f0elemf0elemf1iter
-							f0elemf0elemf1 = append(f0elemf0elemf1, &f0elemf0elemf1elem)
-						}
-						f0elemf0elem.SetEquals(f0elemf0elemf1)
+						f0elemf0elem.Equals = aws.ToStringSlice(f0elemf0iter.Equals)
 					}
 					if f0elemf0iter.Field != nil {
-						f0elemf0elem.SetField(*f0elemf0iter.Field)
+						f0elemf0elem.Field = f0elemf0iter.Field
 					}
 					if f0elemf0iter.NotEndsWith != nil {
-						f0elemf0elemf3 := []*string{}
-						for _, f0elemf0elemf3iter := range f0elemf0iter.NotEndsWith {
-							var f0elemf0elemf3elem string
-							f0elemf0elemf3elem = *f0elemf0elemf3iter
-							f0elemf0elemf3 = append(f0elemf0elemf3, &f0elemf0elemf3elem)
-						}
-						f0elemf0elem.SetNotEndsWith(f0elemf0elemf3)
+						f0elemf0elem.NotEndsWith = aws.ToStringSlice(f0elemf0iter.NotEndsWith)
 					}
 					if f0elemf0iter.NotEquals != nil {
-						f0elemf0elemf4 := []*string{}
-						for _, f0elemf0elemf4iter := range f0elemf0iter.NotEquals {
-							var f0elemf0elemf4elem string
-							f0elemf0elemf4elem = *f0elemf0elemf4iter
-							f0elemf0elemf4 = append(f0elemf0elemf4, &f0elemf0elemf4elem)
-						}
-						f0elemf0elem.SetNotEquals(f0elemf0elemf4)
+						f0elemf0elem.NotEquals = aws.ToStringSlice(f0elemf0iter.NotEquals)
 					}
 					if f0elemf0iter.NotStartsWith != nil {
-						f0elemf0elemf5 := []*string{}
-						for _, f0elemf0elemf5iter := range f0elemf0iter.NotStartsWith {
-							var f0elemf0elemf5elem string
-							f0elemf0elemf5elem = *f0elemf0elemf5iter
-							f0elemf0elemf5 = append(f0elemf0elemf5, &f0elemf0elemf5elem)
-						}
-						f0elemf0elem.SetNotStartsWith(f0elemf0elemf5)
+						f0elemf0elem.NotStartsWith = aws.ToStringSlice(f0elemf0iter.NotStartsWith)
 					}
 					if f0elemf0iter.StartsWith != nil {
-						f0elemf0elemf6 := []*string{}
-						for _, f0elemf0elemf6iter := range f0elemf0iter.StartsWith {
-							var f0elemf0elemf6elem string
-							f0elemf0elemf6elem = *f0elemf0elemf6iter
-							f0elemf0elemf6 = append(f0elemf0elemf6, &f0elemf0elemf6elem)
-						}
-						f0elemf0elem.SetStartsWith(f0elemf0elemf6)
+						f0elemf0elem.StartsWith = aws.ToStringSlice(f0elemf0iter.StartsWith)
 					}
-					f0elemf0 = append(f0elemf0, f0elemf0elem)
+					f0elemf0 = append(f0elemf0, *f0elemf0elem)
 				}
-				f0elem.SetFieldSelectors(f0elemf0)
+				f0elem.FieldSelectors = f0elemf0
 			}
 			if f0iter.Name != nil {
-				f0elem.SetName(*f0iter.Name)
+				f0elem.Name = f0iter.Name
 			}
-			f0 = append(f0, f0elem)
+			f0 = append(f0, *f0elem)
 		}
-		res.SetAdvancedEventSelectors(f0)
+		res.AdvancedEventSelectors = f0
 	}
 	if r.ko.Spec.MultiRegionEnabled != nil {
-		res.SetMultiRegionEnabled(*r.ko.Spec.MultiRegionEnabled)
+		res.MultiRegionEnabled = r.ko.Spec.MultiRegionEnabled
 	}
 	if r.ko.Spec.Name != nil {
-		res.SetName(*r.ko.Spec.Name)
+		res.Name = r.ko.Spec.Name
 	}
 	if r.ko.Spec.OrganizationEnabled != nil {
-		res.SetOrganizationEnabled(*r.ko.Spec.OrganizationEnabled)
+		res.OrganizationEnabled = r.ko.Spec.OrganizationEnabled
 	}
 	if r.ko.Spec.RetentionPeriod != nil {
-		res.SetRetentionPeriod(*r.ko.Spec.RetentionPeriod)
+		retentionPeriodCopy0 := *r.ko.Spec.RetentionPeriod
+		if retentionPeriodCopy0 > math.MaxInt32 || retentionPeriodCopy0 < math.MinInt32 {
+			return nil, fmt.Errorf("error: field RetentionPeriod is of type int32")
+		}
+		retentionPeriodCopy := int32(retentionPeriodCopy0)
+		res.RetentionPeriod = &retentionPeriodCopy
 	}
 	if r.ko.Spec.Tags != nil {
-		f5 := []*svcsdk.Tag{}
+		f5 := []svcsdktypes.Tag{}
 		for _, f5iter := range r.ko.Spec.Tags {
-			f5elem := &svcsdk.Tag{}
+			f5elem := &svcsdktypes.Tag{}
 			if f5iter.Key != nil {
-				f5elem.SetKey(*f5iter.Key)
+				f5elem.Key = f5iter.Key
 			}
 			if f5iter.Value != nil {
-				f5elem.SetValue(*f5iter.Value)
+				f5elem.Value = f5iter.Value
 			}
-			f5 = append(f5, f5elem)
+			f5 = append(f5, *f5elem)
 		}
-		res.SetTagsList(f5)
+		res.TagsList = f5
 	}
 	if r.ko.Spec.TerminationProtectionEnabled != nil {
-		res.SetTerminationProtectionEnabled(*r.ko.Spec.TerminationProtectionEnabled)
+		res.TerminationProtectionEnabled = r.ko.Spec.TerminationProtectionEnabled
 	}
 
 	return res, nil
@@ -585,7 +485,7 @@ func (rm *resourceManager) sdkUpdate(
 
 	var resp *svcsdk.UpdateEventDataStoreOutput
 	_ = resp
-	resp, err = rm.sdkapi.UpdateEventDataStoreWithContext(ctx, input)
+	resp, err = rm.sdkapi.UpdateEventDataStore(ctx, input)
 	rm.metrics.RecordAPICall("UPDATE", "UpdateEventDataStore", err)
 	if err != nil {
 		return nil, err
@@ -603,61 +503,25 @@ func (rm *resourceManager) sdkUpdate(
 				for _, f0elemf0iter := range f0iter.FieldSelectors {
 					f0elemf0elem := &svcapitypes.AdvancedFieldSelector{}
 					if f0elemf0iter.EndsWith != nil {
-						f0elemf0elemf0 := []*string{}
-						for _, f0elemf0elemf0iter := range f0elemf0iter.EndsWith {
-							var f0elemf0elemf0elem string
-							f0elemf0elemf0elem = *f0elemf0elemf0iter
-							f0elemf0elemf0 = append(f0elemf0elemf0, &f0elemf0elemf0elem)
-						}
-						f0elemf0elem.EndsWith = f0elemf0elemf0
+						f0elemf0elem.EndsWith = aws.StringSlice(f0elemf0iter.EndsWith)
 					}
 					if f0elemf0iter.Equals != nil {
-						f0elemf0elemf1 := []*string{}
-						for _, f0elemf0elemf1iter := range f0elemf0iter.Equals {
-							var f0elemf0elemf1elem string
-							f0elemf0elemf1elem = *f0elemf0elemf1iter
-							f0elemf0elemf1 = append(f0elemf0elemf1, &f0elemf0elemf1elem)
-						}
-						f0elemf0elem.Equals = f0elemf0elemf1
+						f0elemf0elem.Equals = aws.StringSlice(f0elemf0iter.Equals)
 					}
 					if f0elemf0iter.Field != nil {
 						f0elemf0elem.Field = f0elemf0iter.Field
 					}
 					if f0elemf0iter.NotEndsWith != nil {
-						f0elemf0elemf3 := []*string{}
-						for _, f0elemf0elemf3iter := range f0elemf0iter.NotEndsWith {
-							var f0elemf0elemf3elem string
-							f0elemf0elemf3elem = *f0elemf0elemf3iter
-							f0elemf0elemf3 = append(f0elemf0elemf3, &f0elemf0elemf3elem)
-						}
-						f0elemf0elem.NotEndsWith = f0elemf0elemf3
+						f0elemf0elem.NotEndsWith = aws.StringSlice(f0elemf0iter.NotEndsWith)
 					}
 					if f0elemf0iter.NotEquals != nil {
-						f0elemf0elemf4 := []*string{}
-						for _, f0elemf0elemf4iter := range f0elemf0iter.NotEquals {
-							var f0elemf0elemf4elem string
-							f0elemf0elemf4elem = *f0elemf0elemf4iter
-							f0elemf0elemf4 = append(f0elemf0elemf4, &f0elemf0elemf4elem)
-						}
-						f0elemf0elem.NotEquals = f0elemf0elemf4
+						f0elemf0elem.NotEquals = aws.StringSlice(f0elemf0iter.NotEquals)
 					}
 					if f0elemf0iter.NotStartsWith != nil {
-						f0elemf0elemf5 := []*string{}
-						for _, f0elemf0elemf5iter := range f0elemf0iter.NotStartsWith {
-							var f0elemf0elemf5elem string
-							f0elemf0elemf5elem = *f0elemf0elemf5iter
-							f0elemf0elemf5 = append(f0elemf0elemf5, &f0elemf0elemf5elem)
-						}
-						f0elemf0elem.NotStartsWith = f0elemf0elemf5
+						f0elemf0elem.NotStartsWith = aws.StringSlice(f0elemf0iter.NotStartsWith)
 					}
 					if f0elemf0iter.StartsWith != nil {
-						f0elemf0elemf6 := []*string{}
-						for _, f0elemf0elemf6iter := range f0elemf0iter.StartsWith {
-							var f0elemf0elemf6elem string
-							f0elemf0elemf6elem = *f0elemf0elemf6iter
-							f0elemf0elemf6 = append(f0elemf0elemf6, &f0elemf0elemf6elem)
-						}
-						f0elemf0elem.StartsWith = f0elemf0elemf6
+						f0elemf0elem.StartsWith = aws.StringSlice(f0elemf0iter.StartsWith)
 					}
 					f0elemf0 = append(f0elemf0, f0elemf0elem)
 				}
@@ -700,12 +564,13 @@ func (rm *resourceManager) sdkUpdate(
 		ko.Spec.OrganizationEnabled = nil
 	}
 	if resp.RetentionPeriod != nil {
-		ko.Spec.RetentionPeriod = resp.RetentionPeriod
+		retentionPeriodCopy := int64(*resp.RetentionPeriod)
+		ko.Spec.RetentionPeriod = &retentionPeriodCopy
 	} else {
 		ko.Spec.RetentionPeriod = nil
 	}
-	if resp.Status != nil {
-		ko.Status.Status = resp.Status
+	if resp.Status != "" {
+		ko.Status.Status = aws.String(string(resp.Status))
 	} else {
 		ko.Status.Status = nil
 	}
@@ -734,95 +599,64 @@ func (rm *resourceManager) newUpdateRequestPayload(
 	res := &svcsdk.UpdateEventDataStoreInput{}
 
 	if r.ko.Spec.AdvancedEventSelectors != nil {
-		f0 := []*svcsdk.AdvancedEventSelector{}
+		f0 := []svcsdktypes.AdvancedEventSelector{}
 		for _, f0iter := range r.ko.Spec.AdvancedEventSelectors {
-			f0elem := &svcsdk.AdvancedEventSelector{}
+			f0elem := &svcsdktypes.AdvancedEventSelector{}
 			if f0iter.FieldSelectors != nil {
-				f0elemf0 := []*svcsdk.AdvancedFieldSelector{}
+				f0elemf0 := []svcsdktypes.AdvancedFieldSelector{}
 				for _, f0elemf0iter := range f0iter.FieldSelectors {
-					f0elemf0elem := &svcsdk.AdvancedFieldSelector{}
+					f0elemf0elem := &svcsdktypes.AdvancedFieldSelector{}
 					if f0elemf0iter.EndsWith != nil {
-						f0elemf0elemf0 := []*string{}
-						for _, f0elemf0elemf0iter := range f0elemf0iter.EndsWith {
-							var f0elemf0elemf0elem string
-							f0elemf0elemf0elem = *f0elemf0elemf0iter
-							f0elemf0elemf0 = append(f0elemf0elemf0, &f0elemf0elemf0elem)
-						}
-						f0elemf0elem.SetEndsWith(f0elemf0elemf0)
+						f0elemf0elem.EndsWith = aws.ToStringSlice(f0elemf0iter.EndsWith)
 					}
 					if f0elemf0iter.Equals != nil {
-						f0elemf0elemf1 := []*string{}
-						for _, f0elemf0elemf1iter := range f0elemf0iter.Equals {
-							var f0elemf0elemf1elem string
-							f0elemf0elemf1elem = *f0elemf0elemf1iter
-							f0elemf0elemf1 = append(f0elemf0elemf1, &f0elemf0elemf1elem)
-						}
-						f0elemf0elem.SetEquals(f0elemf0elemf1)
+						f0elemf0elem.Equals = aws.ToStringSlice(f0elemf0iter.Equals)
 					}
 					if f0elemf0iter.Field != nil {
-						f0elemf0elem.SetField(*f0elemf0iter.Field)
+						f0elemf0elem.Field = f0elemf0iter.Field
 					}
 					if f0elemf0iter.NotEndsWith != nil {
-						f0elemf0elemf3 := []*string{}
-						for _, f0elemf0elemf3iter := range f0elemf0iter.NotEndsWith {
-							var f0elemf0elemf3elem string
-							f0elemf0elemf3elem = *f0elemf0elemf3iter
-							f0elemf0elemf3 = append(f0elemf0elemf3, &f0elemf0elemf3elem)
-						}
-						f0elemf0elem.SetNotEndsWith(f0elemf0elemf3)
+						f0elemf0elem.NotEndsWith = aws.ToStringSlice(f0elemf0iter.NotEndsWith)
 					}
 					if f0elemf0iter.NotEquals != nil {
-						f0elemf0elemf4 := []*string{}
-						for _, f0elemf0elemf4iter := range f0elemf0iter.NotEquals {
-							var f0elemf0elemf4elem string
-							f0elemf0elemf4elem = *f0elemf0elemf4iter
-							f0elemf0elemf4 = append(f0elemf0elemf4, &f0elemf0elemf4elem)
-						}
-						f0elemf0elem.SetNotEquals(f0elemf0elemf4)
+						f0elemf0elem.NotEquals = aws.ToStringSlice(f0elemf0iter.NotEquals)
 					}
 					if f0elemf0iter.NotStartsWith != nil {
-						f0elemf0elemf5 := []*string{}
-						for _, f0elemf0elemf5iter := range f0elemf0iter.NotStartsWith {
-							var f0elemf0elemf5elem string
-							f0elemf0elemf5elem = *f0elemf0elemf5iter
-							f0elemf0elemf5 = append(f0elemf0elemf5, &f0elemf0elemf5elem)
-						}
-						f0elemf0elem.SetNotStartsWith(f0elemf0elemf5)
+						f0elemf0elem.NotStartsWith = aws.ToStringSlice(f0elemf0iter.NotStartsWith)
 					}
 					if f0elemf0iter.StartsWith != nil {
-						f0elemf0elemf6 := []*string{}
-						for _, f0elemf0elemf6iter := range f0elemf0iter.StartsWith {
-							var f0elemf0elemf6elem string
-							f0elemf0elemf6elem = *f0elemf0elemf6iter
-							f0elemf0elemf6 = append(f0elemf0elemf6, &f0elemf0elemf6elem)
-						}
-						f0elemf0elem.SetStartsWith(f0elemf0elemf6)
+						f0elemf0elem.StartsWith = aws.ToStringSlice(f0elemf0iter.StartsWith)
 					}
-					f0elemf0 = append(f0elemf0, f0elemf0elem)
+					f0elemf0 = append(f0elemf0, *f0elemf0elem)
 				}
-				f0elem.SetFieldSelectors(f0elemf0)
+				f0elem.FieldSelectors = f0elemf0
 			}
 			if f0iter.Name != nil {
-				f0elem.SetName(*f0iter.Name)
+				f0elem.Name = f0iter.Name
 			}
-			f0 = append(f0, f0elem)
+			f0 = append(f0, *f0elem)
 		}
-		res.SetAdvancedEventSelectors(f0)
+		res.AdvancedEventSelectors = f0
 	}
 	if r.ko.Spec.MultiRegionEnabled != nil {
-		res.SetMultiRegionEnabled(*r.ko.Spec.MultiRegionEnabled)
+		res.MultiRegionEnabled = r.ko.Spec.MultiRegionEnabled
 	}
 	if r.ko.Spec.Name != nil {
-		res.SetName(*r.ko.Spec.Name)
+		res.Name = r.ko.Spec.Name
 	}
 	if r.ko.Spec.OrganizationEnabled != nil {
-		res.SetOrganizationEnabled(*r.ko.Spec.OrganizationEnabled)
+		res.OrganizationEnabled = r.ko.Spec.OrganizationEnabled
 	}
 	if r.ko.Spec.RetentionPeriod != nil {
-		res.SetRetentionPeriod(*r.ko.Spec.RetentionPeriod)
+		retentionPeriodCopy0 := *r.ko.Spec.RetentionPeriod
+		if retentionPeriodCopy0 > math.MaxInt32 || retentionPeriodCopy0 < math.MinInt32 {
+			return nil, fmt.Errorf("error: field RetentionPeriod is of type int32")
+		}
+		retentionPeriodCopy := int32(retentionPeriodCopy0)
+		res.RetentionPeriod = &retentionPeriodCopy
 	}
 	if r.ko.Spec.TerminationProtectionEnabled != nil {
-		res.SetTerminationProtectionEnabled(*r.ko.Spec.TerminationProtectionEnabled)
+		res.TerminationProtectionEnabled = r.ko.Spec.TerminationProtectionEnabled
 	}
 
 	return res, nil
@@ -848,7 +682,7 @@ func (rm *resourceManager) sdkDelete(
 
 	var resp *svcsdk.DeleteEventDataStoreOutput
 	_ = resp
-	resp, err = rm.sdkapi.DeleteEventDataStoreWithContext(ctx, input)
+	resp, err = rm.sdkapi.DeleteEventDataStore(ctx, input)
 	rm.metrics.RecordAPICall("DELETE", "DeleteEventDataStore", err)
 	return nil, err
 }

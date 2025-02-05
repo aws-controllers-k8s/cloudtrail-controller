@@ -24,18 +24,30 @@ import (
 //
 // A storage lake of event data against which you can run complex SQL-based
 // queries. An event data store can include events that you have logged on your
-// account from the last 90 to 2555 days (about three months to up to seven
-// years). To select events for an event data store, use advanced event selectors
-// (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced).
+// account. To select events for an event data store, use advanced event selectors
+// (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-lake-concepts.html#adv-event-selectors).
 type EventDataStoreSpec struct {
 
 	// The advanced event selectors to use to select the events for the data store.
-	// For more information about how to use advanced event selectors, see Log events
-	// by using advanced event selectors (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced)
+	// You can configure up to five advanced event selectors for each event data
+	// store.
+	//
+	// For more information about how to use advanced event selectors to log CloudTrail
+	// events, see Log events by using advanced event selectors (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-data-events-with-cloudtrail.html#creating-data-event-selectors-advanced)
+	// in the CloudTrail User Guide.
+	//
+	// For more information about how to use advanced event selectors to include
+	// Config configuration items in your event data store, see Create an event
+	// data store for Config configuration items (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/lake-eds-cli.html#lake-cli-create-eds-config)
+	// in the CloudTrail User Guide.
+	//
+	// For more information about how to use advanced event selectors to include
+	// events outside of Amazon Web Services events in your event data store, see
+	// Create an integration to log events from outside Amazon Web Services (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/lake-integrations-cli.html#lake-cli-create-integration)
 	// in the CloudTrail User Guide.
 	AdvancedEventSelectors []*AdvancedEventSelector `json:"advancedEventSelectors,omitempty"`
-	// Specifies whether the event data store includes events from all regions,
-	// or only from the region in which the event data store is created.
+	// Specifies whether the event data store includes events from all Regions,
+	// or only from the Region in which the event data store is created.
 	MultiRegionEnabled *bool `json:"multiRegionEnabled,omitempty"`
 	// The name of the event data store.
 	// +kubebuilder:validation:Required
@@ -43,8 +55,23 @@ type EventDataStoreSpec struct {
 	// Specifies whether an event data store collects events logged for an organization
 	// in Organizations.
 	OrganizationEnabled *bool `json:"organizationEnabled,omitempty"`
-	// The retention period of the event data store, in days. You can set a retention
-	// period of up to 2555 days, the equivalent of seven years.
+	// The retention period of the event data store, in days. If BillingMode is
+	// set to EXTENDABLE_RETENTION_PRICING, you can set a retention period of up
+	// to 3653 days, the equivalent of 10 years. If BillingMode is set to FIXED_RETENTION_PRICING,
+	// you can set a retention period of up to 2557 days, the equivalent of seven
+	// years.
+	//
+	// CloudTrail Lake determines whether to retain an event by checking if the
+	// eventTime of the event is within the specified retention period. For example,
+	// if you set a retention period of 90 days, CloudTrail will remove events when
+	// the eventTime is older than 90 days.
+	//
+	// If you plan to copy trail events to this event data store, we recommend that
+	// you consider both the age of the events that you want to copy as well as
+	// how long you want to keep the copied events in your event data store. For
+	// example, if you copy trail events that are 5 years old and specify a retention
+	// period of 7 years, the event data store will retain those events for two
+	// years.
 	RetentionPeriod *int64 `json:"retentionPeriod,omitempty"`
 	Tags            []*Tag `json:"tags,omitempty"`
 	// Specifies whether termination protection is enabled for the event data store.
