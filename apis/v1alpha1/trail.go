@@ -30,9 +30,11 @@ type TrailSpec struct {
 	// delivered. You must use a log group that exists in your account.
 	//
 	// Not required unless you specify CloudWatchLogsRoleArn.
+
 	CloudWatchLogsLogGroupARN *string `json:"cloudWatchLogsLogGroupARN,omitempty"`
 	// Specifies the role for the CloudWatch Logs endpoint to assume to write to
 	// a user's log group. You must use a role that exists in your account.
+
 	CloudWatchLogsRoleARN *string `json:"cloudWatchLogsRoleARN,omitempty"`
 	// Specifies whether log file integrity validation is enabled. The default is
 	// false.
@@ -45,20 +47,24 @@ type TrailSpec struct {
 	// on January 10, digest files will not be created for the log files delivered
 	// from noon on January 2 to noon on January 10. The same applies whenever you
 	// stop CloudTrail logging or delete a trail.
+
 	EnableLogFileValidation *bool `json:"enableLogFileValidation,omitempty"`
 	// Specifies whether the trail is publishing events from global services such
 	// as IAM to the log files.
+
 	IncludeGlobalServiceEvents *bool `json:"includeGlobalServiceEvents,omitempty"`
 	// Specifies whether the trail is created in the current Region or in all Regions.
 	// The default is false, which creates a trail only in the Region where you
 	// are signed in. As a best practice, consider creating trails that log events
 	// in all Regions.
+
 	IsMultiRegionTrail *bool `json:"isMultiRegionTrail,omitempty"`
 	// Specifies whether the trail is created for all accounts in an organization
 	// in Organizations, or only for the current Amazon Web Services account. The
 	// default is false, and cannot be true unless the call is made on behalf of
 	// an Amazon Web Services account that is the management account or delegated
 	// administrator account for an organization in Organizations.
+
 	IsOrganizationTrail *bool `json:"isOrganizationTrail,omitempty"`
 	// Specifies the KMS key ID to use to encrypt the logs delivered by CloudTrail.
 	// The value can be an alias name prefixed by alias/, a fully specified ARN
@@ -70,45 +76,53 @@ type TrailSpec struct {
 	//
 	// Examples:
 	//
-	//   - alias/MyAliasName
+	//    * alias/MyAliasName
 	//
-	//   - arn:aws:kms:us-east-2:123456789012:alias/MyAliasName
+	//    * arn:aws:kms:us-east-2:123456789012:alias/MyAliasName
 	//
-	//   - arn:aws:kms:us-east-2:123456789012:key/12345678-1234-1234-1234-123456789012
+	//    * arn:aws:kms:us-east-2:123456789012:key/12345678-1234-1234-1234-123456789012
 	//
-	//   - 12345678-1234-1234-1234-123456789012
+	//    * 12345678-1234-1234-1234-123456789012
+
 	KMSKeyID *string `json:"kmsKeyID,omitempty"`
 	// Specifies the name of the trail. The name must meet the following requirements:
 	//
-	//   - Contain only ASCII letters (a-z, A-Z), numbers (0-9), periods (.), underscores
-	//     (_), or dashes (-)
+	//    * Contain only ASCII letters (a-z, A-Z), numbers (0-9), periods (.), underscores
+	//    (_), or dashes (-)
 	//
-	//   - Start with a letter or number, and end with a letter or number
+	//    * Start with a letter or number, and end with a letter or number
 	//
-	//   - Be between 3 and 128 characters
+	//    * Be between 3 and 128 characters
 	//
-	//   - Have no adjacent periods, underscores or dashes. Names like my-_namespace
-	//     and my--namespace are not valid.
+	//    * Have no adjacent periods, underscores or dashes. Names like my-_namespace
+	//    and my--namespace are not valid.
 	//
-	//   - Not be in IP address format (for example, 192.168.5.4)
-	//
+	//    * Not be in IP address format (for example, 192.168.5.4)
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable once set"
 	// +kubebuilder:validation:Required
+
 	Name *string `json:"name"`
 	// Specifies the name of the Amazon S3 bucket designated for publishing log
 	// files. For information about bucket naming rules, see Bucket naming rules
 	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html)
 	// in the Amazon Simple Storage Service User Guide.
+
 	// +kubebuilder:validation:Required
+
 	S3BucketName *string `json:"s3BucketName"`
 	// Specifies the Amazon S3 key prefix that comes after the name of the bucket
 	// you have designated for log file delivery. For more information, see Finding
 	// Your CloudTrail Log Files (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/get-and-view-cloudtrail-log-files.html#cloudtrail-find-log-files).
 	// The maximum length is 200 characters.
+
 	S3KeyPrefix *string `json:"s3KeyPrefix,omitempty"`
 	// Specifies the name of the Amazon SNS topic defined for notification of log
 	// file delivery. The maximum length is 256 characters.
+
 	SNSTopicName *string `json:"snsTopicName,omitempty"`
-	Tags         []*Tag  `json:"tags,omitempty"`
+
+	Tags []*Tag `json:"tags,omitempty"`
 }
 
 // TrailStatus defines the observed state of Trail
@@ -118,7 +132,7 @@ type TrailStatus struct {
 	// constructed ARN for the resource
 	// +kubebuilder:validation:Optional
 	ACKResourceMetadata *ackv1alpha1.ResourceMetadata `json:"ackResourceMetadata"`
-	// All CRS managed by ACK have a common `Status.Conditions` member that
+	// All CRs managed by ACK have a common `Status.Conditions` member that
 	// contains a collection of `ackv1alpha1.Condition` objects that describe
 	// the various terminal states of the CR and its backend AWS service API
 	// resource

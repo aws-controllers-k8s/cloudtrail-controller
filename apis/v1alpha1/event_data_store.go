@@ -45,15 +45,20 @@ type EventDataStoreSpec struct {
 	// events outside of Amazon Web Services events in your event data store, see
 	// Create an integration to log events from outside Amazon Web Services (https://docs.aws.amazon.com/awscloudtrail/latest/userguide/lake-integrations-cli.html#lake-cli-create-integration)
 	// in the CloudTrail User Guide.
+
 	AdvancedEventSelectors []*AdvancedEventSelector `json:"advancedEventSelectors,omitempty"`
 	// Specifies whether the event data store includes events from all Regions,
 	// or only from the Region in which the event data store is created.
+
 	MultiRegionEnabled *bool `json:"multiRegionEnabled,omitempty"`
 	// The name of the event data store.
+
 	// +kubebuilder:validation:Required
+
 	Name *string `json:"name"`
 	// Specifies whether an event data store collects events logged for an organization
 	// in Organizations.
+
 	OrganizationEnabled *bool `json:"organizationEnabled,omitempty"`
 	// The retention period of the event data store, in days. If BillingMode is
 	// set to EXTENDABLE_RETENTION_PRICING, you can set a retention period of up
@@ -72,11 +77,14 @@ type EventDataStoreSpec struct {
 	// example, if you copy trail events that are 5 years old and specify a retention
 	// period of 7 years, the event data store will retain those events for two
 	// years.
+
 	RetentionPeriod *int64 `json:"retentionPeriod,omitempty"`
-	Tags            []*Tag `json:"tags,omitempty"`
+
+	Tags []*Tag `json:"tags,omitempty"`
 	// Specifies whether termination protection is enabled for the event data store.
 	// If termination protection is enabled, you cannot delete the event data store
 	// until termination protection is disabled.
+
 	TerminationProtectionEnabled *bool `json:"terminationProtectionEnabled,omitempty"`
 }
 
@@ -87,7 +95,7 @@ type EventDataStoreStatus struct {
 	// constructed ARN for the resource
 	// +kubebuilder:validation:Optional
 	ACKResourceMetadata *ackv1alpha1.ResourceMetadata `json:"ackResourceMetadata"`
-	// All CRS managed by ACK have a common `Status.Conditions` member that
+	// All CRs managed by ACK have a common `Status.Conditions` member that
 	// contains a collection of `ackv1alpha1.Condition` objects that describe
 	// the various terminal states of the CR and its backend AWS service API
 	// resource
