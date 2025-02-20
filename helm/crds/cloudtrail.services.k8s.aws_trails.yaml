@@ -125,6 +125,9 @@ spec:
 
                     - Not be in IP address format (for example, 192.168.5.4)
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable once set
+                  rule: self == oldSelf
               s3BucketName:
                 description: |-
                   Specifies the name of the Amazon S3 bucket designated for publishing log
@@ -194,7 +197,7 @@ spec:
                 type: object
               conditions:
                 description: |-
-                  All CRS managed by ACK have a common `Status.Conditions` member that
+                  All CRs managed by ACK have a common `Status.Conditions` member that
                   contains a collection of `ackv1alpha1.Condition` objects that describe
                   the various terminal states of the CR and its backend AWS service API
                   resource
