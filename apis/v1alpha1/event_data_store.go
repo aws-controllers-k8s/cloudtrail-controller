@@ -50,6 +50,8 @@ type EventDataStoreSpec struct {
 	// or only from the Region in which the event data store is created.
 	MultiRegionEnabled *bool `json:"multiRegionEnabled,omitempty"`
 	// The name of the event data store.
+	//
+	// Regex Pattern: `^[a-zA-Z0-9._\-]+$`
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
 	// Specifies whether an event data store collects events logged for an organization
