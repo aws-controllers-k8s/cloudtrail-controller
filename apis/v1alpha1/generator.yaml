@@ -42,12 +42,6 @@ resources:
     fields:
       AdvancedEventSelectors:
         late_initialize: {}
-      MultiRegionEnabled:
-        late_initaliaze: {}
-      OrganizationEnabled:
-        late_initaliaze: {}
-      RetentionPeriod:
-        late_initaliaze: {}
       Tags:
         compare:
           is_ignored: true
