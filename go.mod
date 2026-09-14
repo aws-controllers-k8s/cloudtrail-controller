@@ -3,10 +3,10 @@ module github.com/aws-controllers-k8s/cloudtrail-controller
 go 1.25.0
 
 require (
-	github.com/aws-controllers-k8s/iam-controller v1.8.0
-	github.com/aws-controllers-k8s/kms-controller v1.4.0
+	github.com/aws-controllers-k8s/iam-controller v1.9.0
+	github.com/aws-controllers-k8s/kms-controller v1.5.0
 	github.com/aws-controllers-k8s/runtime v0.63.0
-	github.com/aws-controllers-k8s/s3-controller v1.9.0
+	github.com/aws-controllers-k8s/s3-controller v1.12.1
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.47.2
 	github.com/aws/smithy-go v1.24.2
@@ -19,7 +19,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.49.0 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.28.6 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.47 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.21 // indirect
