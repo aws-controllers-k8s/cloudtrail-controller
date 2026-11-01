@@ -19,7 +19,6 @@ import (
 
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
-	ackutil "github.com/aws-controllers-k8s/runtime/pkg/util"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/cloudtrail"
 	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
 
@@ -82,52 +81,13 @@ func customPreCompare(
 	a *resource,
 	b *resource,
 ) {
-	if len(a.ko.Spec.Tags) != len(b.ko.Spec.Tags) {
+	// a = desired, b = latest; GetTagsDifference(from=latest, to=desired)
+	desiredTags, _ := convertToOrderedACKTags(a.ko.Spec.Tags)
+	latestTags, _ := convertToOrderedACKTags(b.ko.Spec.Tags)
+	addedTags, _, removedTags := ackcompare.GetTagsDifference(latestTags, desiredTags)
+	if len(addedTags) > 0 || len(removedTags) > 0 {
 		delta.Add("Spec.Tags", a.ko.Spec.Tags, b.ko.Spec.Tags)
-	} else if len(a.ko.Spec.Tags) > 0 {
-		if !equalTags(a.ko.Spec.Tags, b.ko.Spec.Tags) {
-			delta.Add("Spec.Tags", a.ko.Spec.Tags, b.ko.Spec.Tags)
-		}
 	}
-}
-
-// equalTags returns true if two Tag arrays are equal regardless of the order
-// of their elements.
-func equalTags(
-	a []*svcapitypes.Tag,
-	b []*svcapitypes.Tag,
-) bool {
-	added, removed := computeTagsDelta(a, b)
-	return len(added) == 0 && len(removed) == 0
-}
-
-// computeTagsDelta compares two Tag arrays and return two different lists
-// containing the added and removed tags.
-// The removed tags list only contains the Key of tags
-func computeTagsDelta(
-	a []*svcapitypes.Tag,
-	b []*svcapitypes.Tag,
-) (added, removed []*svcapitypes.Tag) {
-	var visitedIndexes []string
-mainLoop:
-	for _, aElement := range a {
-		visitedIndexes = append(visitedIndexes, *aElement.Key)
-		for _, bElement := range b {
-			if equalStrings(aElement.Key, bElement.Key) {
-				if !equalStrings(aElement.Value, bElement.Value) {
-					added = append(added, bElement)
-				}
-				continue mainLoop
-			}
-		}
-		removed = append(removed, aElement)
-	}
-	for _, bElement := range b {
-		if !ackutil.InStrings(*bElement.Key, visitedIndexes) {
-			added = append(added, bElement)
-		}
-	}
-	return added, removed
 }
 
 // sdkTagsFromResourceTags transforms a *svcapitypes.Tag array to a *svcsdk.Tag array.
@@ -140,11 +100,4 @@ func sdkTagsFromResourceTags(rTags []*svcapitypes.Tag) []svcsdktypes.Tag {
 		}
 	}
 	return tags
-}
-
-func equalStrings(a, b *string) bool {
-	if a == nil {
-		return b == nil || *b == ""
-	}
-	return (*a == "" && b == nil) || *a == *b
 }
