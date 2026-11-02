@@ -50,16 +50,23 @@ func (rm *resourceManager) syncTrailTags(
 	exit := rlog.Trace("rm.syncTrailTags")
 	defer func(err error) { exit(err) }(err)
 
-	added, removed := computeTagsDelta(latest.ko.Spec.Tags, desired.ko.Spec.Tags)
+	from, fromOrder := convertToOrderedACKTags(latest.ko.Spec.Tags)
+	to, toOrder := convertToOrderedACKTags(desired.ko.Spec.Tags)
+	added, _, removed := ackcompare.GetTagsDifference(from, to)
+	toAdd := fromACKTags(added, toOrder)
+	toDelete := fromACKTags(removed, fromOrder)
 
-	// Tags to create/update
+	if len(toAdd) == 0 && len(toDelete) == 0 {
+		return nil
+	}
 
-	if len(removed) > 0 {
+	// Remove tags no longer in desired state
+	if len(toDelete) > 0 {
 		_, err = rm.sdkapi.RemoveTags(
 			ctx,
 			&svcsdk.RemoveTagsInput{
 				ResourceId: (*string)(latest.ko.Status.ACKResourceMetadata.ARN),
-				TagsList:   sdkTagsFromResourceTags(removed),
+				TagsList:   sdkTagsFromResourceTags(toDelete),
 			},
 		)
 		rm.metrics.RecordAPICall("UPDATE", "RemoveTags", err)
@@ -68,12 +75,13 @@ func (rm *resourceManager) syncTrailTags(
 		}
 	}
 
-	if len(added) > 0 {
+	// Add/update tags in desired state
+	if len(toAdd) > 0 {
 		_, err = rm.sdkapi.AddTags(
 			ctx,
 			&svcsdk.AddTagsInput{
 				ResourceId: (*string)(latest.ko.Status.ACKResourceMetadata.ARN),
-				TagsList:   sdkTagsFromResourceTags(added),
+				TagsList:   sdkTagsFromResourceTags(toAdd),
 			},
 		)
 		rm.metrics.RecordAPICall("UPDATE", "AddTags", err)
